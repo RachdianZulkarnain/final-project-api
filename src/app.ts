@@ -1,12 +1,15 @@
 import express, { Express } from "express";
 import cors from "cors";
-import { PORT } from "./config/env";
-import { SampleRouter } from "./modules/sample/sample.router";
-import { errorMiddleware } from "./middlewares/error.middleware";
+import helmet from "helmet";
+import { container } from "tsyringe";
 import { AuthRouter } from "./modules/auth/auth.router";
+import { errorMiddleware } from "./middlewares/error.middleware";
+import { PORT } from "./config/env";
 
-export class App {
-  app: Express;
+
+export default class App {
+  public app: Express;
+
   constructor() {
     this.app = express();
     this.configure();
@@ -14,26 +17,31 @@ export class App {
     this.handleError();
   }
 
-  private configure() {
+  private configure(): void {
+    this.app.use(helmet());
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
-  private routes() {
-    const sampleRouter = new SampleRouter();
-    const authRouter = new AuthRouter();
-
-    this.app.use("/samples", sampleRouter.getRouter());
+  private routes(): void {
+    const authRouter = container.resolve(AuthRouter);
     this.app.use("/auth", authRouter.getRouter());
   }
 
   private handleError() {
-    this.app.use(errorMiddleware);
+    this.app.use(errorMiddleware); // Global error handler
   }
 
   public start() {
+    if (!PORT) {
+      console.error("❌ PORT is not defined in environment variables.");
+      process.exit(1);
+    }
+
     this.app.listen(PORT, () => {
-      console.log(`Server running on port: ${PORT}`);
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
   }
 }
+

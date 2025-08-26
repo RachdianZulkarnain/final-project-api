@@ -1,7 +1,7 @@
 import { sign, SignOptions } from "jsonwebtoken";
 
 export class JwtService {
-  generateToken = (playload: any, secretKey: string, options: SignOptions) => {
-    return sign(playload, secretKey, options);
+  generateToken = (payload: any, secreyKey: string, options: SignOptions) => {
+    return sign(payload, secreyKey, options);
   };
 }
