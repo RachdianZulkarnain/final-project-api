@@ -1,0 +1,119 @@
+import fs from "fs/promises";
+import handlebars from "handlebars";
+import nodemailer, { Transporter } from "nodemailer";
+import path from "path";
+import { env } from "../../config";
+
+export class MailService {
+  private transporter: Transporter;
+  private templatesDir: string;
+
+  constructor() {
+    const isTestEnv = process.env.NODE_ENV === "test";
+
+    this.transporter = nodemailer.createTransport(
+      isTestEnv
+        ? {
+            host: "localhost",
+            port: 6379,
+            secure: false,
+          }
+        : {
+            service: "gmail",
+            auth: {
+              user: env().MAIL_USER,
+              pass: env().MAIL_PASSWORD,
+            },
+          }
+    );
+
+    this.templatesDir = path.resolve(__dirname, "./templates");
+  }
+
+  private async renderTemplate(
+    templateName: string,
+    context: object
+  ): Promise<string> {
+    const templatePath = path.join(this.templatesDir, `${templateName}.hbs`);
+    const templateSource = await fs.readFile(templatePath, "utf-8");
+    const compiledTemplate = handlebars.compile(templateSource);
+    return compiledTemplate(context);
+  }
+
+  public async sendEmail(
+    to: string,
+    subject: string,
+    templateName: string,
+    context: object
+  ): Promise<void> {
+    try {
+      const html = await this.renderTemplate(templateName, context);
+
+      const mailOptions = {
+        from: `"Homigo" <${env().MAIL_USER}>`,
+        to,
+        subject,
+        html,
+      };
+
+      await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw "Error sending email";
+    }
+  }
+
+  public async sendVerificationEmail(
+    to: string,
+    verificationLink: string,
+    userName?: string
+  ): Promise<void> {
+    const subject = "Verify your account";
+    const templateName = "verification-email";
+    const context = {
+      verificationLink,
+      userName,
+      currentYear: new Date().getFullYear(),
+    };
+    try {
+      await this.sendEmail(to, subject, templateName, context);
+    } catch (error) {
+      console.error("Failed to send verification email:", error);
+    }
+  }
+
+  public async sendResetPasswordEmail(
+    to: string,
+    resetPasswordLink: string,
+    userName?: string
+  ): Promise<void> {
+    const subject = "Reset password for your account";
+    const templateName = "reset-password-email";
+    const context = {
+      resetPasswordLink,
+      userName,
+      currentYear: new Date().getFullYear(),
+    };
+
+    try {
+      await this.sendEmail(to, subject, templateName, context);
+    } catch (error) {
+      console.error("Failed to send reset password email:", error);
+    }
+  }
+
+  public async sendVerificationEmailOnly(
+    to: string,
+    verificationLink: string,
+    userName?: string
+  ): Promise<void> {
+    const subject = "Verify your  account";
+    const templateName = "verif-new-email";
+    const context = {
+      verificationLink,
+      userName,
+      currentYear: new Date().getFullYear(),
+    };
+
+    await this.sendEmail(to, subject, templateName, context);
+  }
+}

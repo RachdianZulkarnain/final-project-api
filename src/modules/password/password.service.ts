@@ -7,6 +7,6 @@ export class PasswordService {
   };
 
   comparePassword = async (plainPassword: string, hashPassword: string) => {
-    return compare(plainPassword, hashPassword);
+    return await compare(plainPassword, hashPassword);
   };
 }
