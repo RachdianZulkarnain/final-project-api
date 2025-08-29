@@ -11,6 +11,7 @@ import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ResetPasswordDTO } from "./dto/reset-password.dto";
 import { ChangePasswordDTO } from "./dto/change-password.dto";
 import { validateBody } from "../../middlewares/validate.middleware";
+import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
 @autoInjectable()
 export class AuthRouter {
@@ -33,6 +34,12 @@ export class AuthRouter {
       "/register",
       validateBody(RegisterDTO),
       this.authController.register
+    );
+
+    this.router.post(
+      "/register-tenant",
+      validateBody(RegisterTenantDTO),
+      this.authController.registerTenant
     );
     this.router.post(
       "/verify-email-and-set-password",
@@ -68,8 +75,8 @@ export class AuthRouter {
       this.authController.verifyEmail
     );
     this.router.patch(
-      "/password",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
+      "/change-password",
+      this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
       validateBody(ChangePasswordDTO),
       this.authController.changePassword
     );

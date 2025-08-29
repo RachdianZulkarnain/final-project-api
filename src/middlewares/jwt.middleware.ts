@@ -12,7 +12,6 @@ export class JwtMiddleware {
     return (req: Request, res: Response, next: NextFunction) => {
       let token: string | undefined;
 
-      // Cek token dari header, query, atau body
       if (req.headers.authorization?.startsWith("Bearer ")) {
         token = req.headers.authorization.split(" ")[1];
       } else if (req.query.token) {
@@ -21,39 +20,24 @@ export class JwtMiddleware {
         token = req.body.token;
       }
 
-      if (!token) {
-        return next(new ApiError("No token provided", 401));
-      }
+      if (!token) return next(new ApiError("No token provided", 401));
 
       verify(token, secretKey, (err, decoded) => {
         if (err) {
-          if (err instanceof TokenExpiredError) {
+          if (err instanceof TokenExpiredError)
             return next(new ApiError("Token expired", 401));
-          }
           return next(new ApiError("Invalid token", 401));
         }
 
         const payload = decoded as CustomJwtPayload;
 
-        if (!payload || typeof payload.id !== "number") {
+        if (!payload || typeof payload.id !== "number")
           return next(new ApiError("Invalid token payload", 401));
-        }
 
-        res.locals.user = payload; // Simpan payload ke res.locals
+        // assign ke req.user supaya controller bisa akses
+        (req as any).user = payload;
         next();
       });
-    };
-  };
-
-  verifyRole = (allowedRoles: string[]) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-      const user = res.locals.user as CustomJwtPayload;
-
-      if (!user || !user.role || !allowedRoles.includes(user.role)) {
-        return next(new ApiError("Forbidden", 403));
-      }
-
-      next();
     };
   };
 }

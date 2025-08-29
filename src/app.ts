@@ -5,6 +5,7 @@ import { container } from "tsyringe";
 import { AuthRouter } from "./modules/auth/auth.router";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { PORT } from "./config/env";
+import { UserRouter } from "./modules/profile/profile.router";
 
 
 export default class App {
@@ -26,7 +27,11 @@ export default class App {
 
   private routes(): void {
     const authRouter = container.resolve(AuthRouter);
+    const userRouter = container.resolve(UserRouter);
+
     this.app.use("/auth", authRouter.getRouter());
+    this.app.use("/user", userRouter.getRouter());
+    
   }
 
   private handleError() {
