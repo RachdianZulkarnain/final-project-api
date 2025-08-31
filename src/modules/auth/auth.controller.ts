@@ -9,6 +9,7 @@ import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ResetPasswordDTO } from "./dto/reset-password.dto";
 import { ChangePasswordDTO } from "./dto/change-password.dto";
 import { ApiError } from "../../utils/api-error";
+import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
 interface AuthenticatedUser {
   id: number;
@@ -47,13 +48,23 @@ export class AuthController {
     }
   };
 
+  registerTenant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body as RegisterTenantDTO;
+      const result = await this.authService.registerTenant(body);
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   verifyEmailAndSetPassword = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const authUser = res.locals.user; // Ambil user dari JwtMiddleware
+      const authUser = req.user; // <-- pakai req.user, bukan res.locals.user
       if (!authUser || !authUser.id) {
         throw new ApiError("Unauthorized: User not found in token", 401);
       }
@@ -132,9 +143,10 @@ export class AuthController {
     try {
       const authUserId = req.user!.id;
       const body = req.body as ChangePasswordDTO;
-      const result = await this.authService.changePassword(authUserId, body);
-      res.status(200).send(result);
-    } catch (error) {
+
+      const updatedUser = await this.authService.changePassword(authUserId, body);
+      res.status(200).json(updatedUser);
+    } catch (error: any) {
       next(error);
     }
   };

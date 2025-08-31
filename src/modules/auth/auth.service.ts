@@ -16,6 +16,7 @@ import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
 import { Role, Provider } from "../../generated/prisma"; // <-- penting
 import { env } from "../../config";
+import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
 @injectable()
 export class AuthService {
@@ -112,6 +113,59 @@ export class AuthService {
     return newUser;
   };
 
+  registerTenant = async (body: RegisterTenantDTO) => {
+    const { firstName, lastName, email } = body;
+
+    // Cek apakah email sudah ada
+    const existingTenant = await this.prisma.user.findFirst({
+      where: { email, isDeleted: false },
+    });
+    if (existingTenant) throw new ApiError("Email already exists", 400);
+
+    // Buat tenant baru (user dengan role TENANT)
+    const newTenant = await this.prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        isVerified: false,
+        role: Role.TENANT,
+        provider: Provider.CREDENTIAL,
+        resetPasswordTokenUsed: false,
+      },
+      select: {
+        ...prismaExclude("User", ["password"]),
+        id: true,
+        email: true,
+      },
+    });
+
+    // Generate token verifikasi email
+    const tokenPayload = { id: newTenant.id, email: newTenant.email };
+    const emailVerificationToken = this.tokenService.generateToken(
+      tokenPayload,
+      process.env.JWT_SECRET_VERIFICATION!,
+      { expiresIn: "15m" }
+    );
+
+    // Link verifikasi
+    const verificationLink = `${process.env.FRONTEND_URL}/sign-up/set-password?token=${emailVerificationToken}`;
+
+    // Kirim email verifikasi
+    await this.mailService.sendVerificationEmail(
+      newTenant.email,
+      verificationLink
+    );
+
+    // Update timestamp email dikirim
+    await this.prisma.user.update({
+      where: { id: newTenant.id },
+      data: { verificationSentAt: new Date() },
+    });
+
+    return newTenant;
+  };
+
   /** VERIFY EMAIL & SET PASSWORD */
   verifyEmailAndSetPassword = async (
     body: VerificationDTO,
@@ -205,33 +259,48 @@ export class AuthService {
   /** FORGOT PASSWORD */
   forgotPassword = async (body: ForgotPasswordDto) => {
     const { email } = body;
-
     const existingUser = await this.prisma.user.findFirst({
-      where: { email, isDeleted: false },
+      where: { email },
     });
-    if (!existingUser) throw new ApiError("Email is not registered", 400);
-    if (existingUser.provider === Provider.GOOGLE)
-      throw new ApiError("Login with Google only", 400);
+
+    if (!existingUser) {
+      throw new ApiError("Email is not registered", 400);
+    }
+
+    if (existingUser.provider === "GOOGLE") {
+      throw new ApiError(
+        "This account uses Google Sign-In. Please login using Google",
+        400
+      );
+    }
+
+    const forgotPasswordPayload = {
+      userId: existingUser.id,
+      email: existingUser.email,
+    };
 
     const resetPasswordToken = this.tokenService.generateToken(
-      { id: existingUser.id, email: existingUser.email },
-      process.env.JWT_SECRET_RESET_PASSWORD!,
+      forgotPasswordPayload,
+      process.env.JWT_SECRET_RESET_PASSWORD as string,
       { expiresIn: "15m" }
     );
 
     await this.prisma.user.update({
       where: { id: existingUser.id },
-      data: { resetPasswordToken, resetPasswordTokenUsed: false },
+      data: {
+        resetPasswordToken: resetPasswordToken,
+        resetPasswordTokenUsed: false,
+      },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
+    const resetPasswordLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
     await this.mailService.sendResetPasswordEmail(
       existingUser.email,
-      resetLink,
+      resetPasswordLink,
       existingUser.firstName
     );
 
-    return { message: "Reset password email sent" };
+    return existingUser;
   };
 
   /** RESET PASSWORD */
@@ -318,7 +387,12 @@ export class AuthService {
 
   /** CHANGE PASSWORD */
   changePassword = async (authUserId: number, body: ChangePasswordDTO) => {
-    const { oldPassword, newPassword } = body;
+    const { oldPassword, newPassword, confirmPassword } = body;
+
+    if (newPassword !== confirmPassword) {
+      throw new ApiError("New password and confirm password do not match", 400);
+    }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { id: authUserId },
     });
@@ -336,17 +410,16 @@ export class AuthService {
       throw new ApiError("Old password incorrect", 400);
     }
 
-    const isPasswordSame = await this.passwordService.comparePassword(
+    const isSamePassword = await this.passwordService.comparePassword(
       newPassword,
       existingUser.password
     );
 
-    if (isPasswordSame) {
-      throw new ApiError("Password must be different", 400);
-    }
-
-    if (!isPasswordCorrect) {
-      throw new ApiError("Old password incorrect", 400);
+    if (isSamePassword) {
+      throw new ApiError(
+        "New password must be different from old password",
+        400
+      );
     }
 
     const hashedNewPassword = await this.passwordService.hashPassword(
@@ -355,12 +428,10 @@ export class AuthService {
 
     const updatedUser = await this.prisma.user.update({
       where: { id: authUserId },
-      data: {
-        password: hashedNewPassword,
-      },
-      select: prismaExclude("User", ["password"]),
+      data: { password: hashedNewPassword },
     });
 
-    return updatedUser;
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   };
 }
