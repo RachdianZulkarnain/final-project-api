@@ -11,4 +11,8 @@ export class RegisterTenantDTO {
   @IsNotEmpty()
   @IsString()
   email!: string;
+
+  @IsOptional()
+  @IsString()
+  phone!: string;
 }

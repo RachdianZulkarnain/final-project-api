@@ -34,8 +34,10 @@ export class JwtMiddleware {
         if (!payload || typeof payload.id !== "number")
           return next(new ApiError("Invalid token payload", 401));
 
-        // assign ke req.user supaya controller bisa akses
+        // assign ke req.user dan res.locals.user supaya controller bisa akses
         (req as any).user = payload;
+        res.locals.user = payload;
+
         next();
       });
     };

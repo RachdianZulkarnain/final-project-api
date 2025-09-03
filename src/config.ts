@@ -7,6 +7,7 @@ class EnvConfig {
 
   @IsNotEmpty() @IsString() JWT_SECRET!: string;
   @IsNotEmpty() @IsString() JWT_SECRET_RESET_PASSWORD!: string;
+  @IsNotEmpty() @IsString() JWT_SECRET_FORGOT_PASSWORD!: string;
   @IsNotEmpty() @IsString() JWT_SECRET_VERIFICATION!: string;
 
   @IsNotEmpty() @IsString() MAIL_USER!: string;
@@ -16,9 +17,9 @@ class EnvConfig {
   @IsNotEmpty() @IsString() CLOUDINARY_API_SECRET!: string;
   @IsNotEmpty() @IsString() CLOUDINARY_CLOUD_NAME!: string;
 
-
   @IsNotEmpty() @IsString() GOOGLE_CLIENT_ID!: string;
   @IsNotEmpty() @IsString() GOOGLE_CLIENT_SECRET!: string;
+  
 }
 
 export const env = () => {
