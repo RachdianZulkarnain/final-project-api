@@ -10,6 +10,7 @@ import { PropertyRouter } from "./modules/property/property.router";
 import { CategoryRouter } from "./modules/category/category.router";
 import { RoomRouter } from "./modules/room/room.router";
 import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.router";
+import { RoomNonAvailabilityRouter } from "./modules/room-non-availability/roomNonAvailability.router";
 
 export default class App {
   public app: Express;
@@ -34,15 +35,21 @@ export default class App {
     const propertyRouter = container.resolve(PropertyRouter);
     const categoryRouter = container.resolve(CategoryRouter);
     const roomRouter = container.resolve(RoomRouter);
-     const peakSeasonRouter = container.resolve(PeakSeasonRouter);
+    const peakSeasonRouter = container.resolve(PeakSeasonRouter);
+    const roomNonAvailabilityRouter = container.resolve(
+      RoomNonAvailabilityRouter
+    );
 
     this.app.use("/auth", authRouter.getRouter());
     this.app.use("/user", userRouter.getRouter());
     this.app.use("/properties", propertyRouter.getRouter());
     this.app.use("/categories", categoryRouter.getRouter());
-    this.app.use("/room", roomRouter.getRouter());
+    this.app.use("/rooms", roomRouter.getRouter());
     this.app.use("/peak-season", peakSeasonRouter.getRouter());
-
+    this.app.use(
+      "/room-non-availabilities",
+      roomNonAvailabilityRouter.getRouter()
+    );
   }
 
   private handleError() {
