@@ -24,10 +24,9 @@ model User {
   isDeleted              Boolean   @default(false)
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
-
-  tenants      Tenant?
-  reviews      Review[]
-  transactions Transaction[]
+  tenant                 Tenant[]
+  reviews                Review[]
+  Payment                Payment[]
 
   @@map("users")
 }
@@ -43,160 +42,248 @@ enum Provider {
 }
 
 model Tenant {
-  id         Int      @id @default(autoincrement())
-  name       String
-  imageUrl   String?
-  phone      String?
-  bankName   String?
-  bankNumber String?
-  isDeleted  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  userId     Int        @unique
-  user       User       @relation(fields: [userId], references: [id])
-  properties Property[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  imageUrl         String?
+  phone            String?
+  bankName         String?
+  bankNumber       String?
+  user             User               @relation(fields: [userId], references: [id])
+  userId           Int                @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  isDeleted        Boolean            @default(false)
+  property         Property[]
+  PropertyCategory PropertyCategory[]
 
   @@map("tenants")
 }
 
 model Property {
-  id          Int      @id @default(autoincrement())
-  slug        String
+  id          Int            @id @default(autoincrement())
+  slug        String         @unique
   title       String
-  description String
-  category    Category
-  latitude    Float
-  longitude   Float
-  status      Status
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String         @db.Text()
+  latitude    String
+  longitude   String
+  status      StatusProperty
+  isDeleted   Boolean        @default(false)
+  tenantId    Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  location    String
 
+  propertyImage    PropertyImage[]
+  propertyFacility PropertyFacility[]
+  room             Room[]
+
+  tenant             Tenant           @relation(fields: [tenantId], references: [id])
+  review             Review[]
+  propertyCategoryId Int
+  propertyCategory   PropertyCategory @relation(fields: [propertyCategoryId], references: [id])
+
+  @@map("properties")
+}
+
+enum StatusProperty {
+  PUBLISHED
+  DRAFT
+}
+
+model PropertyCategory {
+  id         Int        @id @default(autoincrement())
+  name       String
   tenantId   Int
-  tenant     Tenant             @relation(fields: [tenantId], references: [id])
-  images     PropertyImage[]
-  facilities PropertyFacility[]
-  rooms      Room[]
-  reviews    Review[]
-}
+  isDeleted  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  properties Property[]
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
 
-enum Status {
-  published
-  draft
-}
-
-enum Category {
-  villa
-  hotel
-  apartment
+  @@unique([name, tenantId], name: "unique_active_category_per_tenant")
+  @@index([name, tenantId, isDeleted])
+  @@map("propertyCategories")
 }
 
 model PropertyImage {
   id         Int      @id @default(autoincrement())
-  url        String
+  imageUrl   String?
+  isDeleted  Boolean  @default(false)
   propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("propertyImages")
 }
 
 model PropertyFacility {
-  id         Int      @id @default(autoincrement())
-  title      String
-  propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text()
+  isDeleted   Boolean  @default(false)
+  propertyId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("propertyFacilities")
 }
 
 model Room {
   id         Int      @id @default(autoincrement())
-  name       String
-  stock      Int      @default(1)
+  type       Type
+  name       String?
+  stock      Int
   price      Int
+  guest      Int
+  isDeleted  Boolean  @default(false)
   propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  images       RoomImage[]
-  facilities   RoomFacility[]
-  seasonal     SeasonalRate[]
-  unavailable  RoomNonAvailability[]
-  transactions Transaction[]
+  peakSeasonRate      PeakSeasonRate[]
+  roomFacility        RoomFacility[]
+  roomImage           RoomImage[]
+  roomNonAvailability RoomNonAvailability[]
+
+  property    Property      @relation(fields: [propertyId], references: [id])
+  reservation Reservation[]
+
+  @@map("rooms")
+}
+
+enum Type {
+  Deluxe
+  Standard
+  Suite
+}
+
+model PeakSeasonRate {
+  id        Int      @id @default(autoincrement())
+  price     Int
+  startDate DateTime
+  endDate   DateTime
+  isDeleted Boolean  @default(false)
+  roomId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@map("peakSeasonRates")
+}
+
+model RoomFacility {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text()
+  isDeleted   Boolean  @default(false)
+  roomId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@map("roomFacilities")
 }
 
 model RoomImage {
   id        Int      @id @default(autoincrement())
-  url       String
+  imageUrl  String?
+  isDeleted Boolean  @default(false)
   roomId    Int
-  room      Room     @relation(fields: [roomId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
 
-model RoomFacility {
-  id        Int      @id @default(autoincrement())
-  title     String
-  roomId    Int
-  room      Room     @relation(fields: [roomId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+  room Room @relation(fields: [roomId], references: [id])
 
-model SeasonalRate {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  price     Int
-  roomId    Int
-  room      Room     @relation(fields: [roomId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("roomImages")
 }
 
 model RoomNonAvailability {
-  date      DateTime
-  roomId    Int
+  id        Int      @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime
+  isDeleted Boolean  @default(false)
   reason    String?
-  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([date, roomId])
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@map("roomNonAvailability")
+}
+
+model Payment {
+  id             Int            @id @default(autoincrement())
+  uuid           String         @default(uuid())
+  userId         Int
+  status         StatusPayment
+  totalPrice     Int
+  duration       Int
+  paymentMethode PaymentMethode @default(MANUAL)
+  paymentProof   String?
+  invoiceUrl     String?
+  expiredAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  review      Review[]
+  user        User          @relation(fields: [userId], references: [id])
+  reservation Reservation[]
+
+  @@map("payments")
+}
+
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @default(uuid())
+  roomId    Int
+  paymentId Int
+  price     Int
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id])
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+
+  @@map("reservations")
+}
+
+enum PaymentMethode {
+  MANUAL
+  OTOMATIS
+}
+
+enum StatusPayment {
+  WAITING_FOR_PAYMENT
+  WAITING_FOR_PAYMENT_CONFIRMATION
+  CANCELLED
+  PROCESSED
+  CHECKED_IN
+  CHECKED_OUT
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  rating     Int
-  review     String
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
-  propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Transaction {
-  id           Int               @id @default(autoincrement())
-  uuid         String            @unique @default(uuid())
+  id           Int       @id @default(autoincrement())
+  rating       Int       @default(0)
+  review       String    @db.Text()
   userId       Int
-  user         User              @relation(fields: [userId], references: [id])
-  roomId       Int
-  room         Room              @relation(fields: [roomId], references: [id])
-  status       TransactionStatus
-  total        Int
-  startDate    DateTime
-  endDate      DateTime
-  paymentProof String?
-  invoiceUrl   String?
-  expiredAt    DateTime
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-}
+  paymentId    Int
+  propertyId   Int
+  replyMessage String?   @db.Text()
+  replyDate    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-enum TransactionStatus {
-  pending
-  paid
-  cancelled
+  user     User     @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+  payment  Payment  @relation(fields: [paymentId], references: [id])
+
+  @@map("reviews")
 }

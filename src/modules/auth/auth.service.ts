@@ -114,16 +114,17 @@ export class AuthService {
   };
 
   registerTenant = async (body: RegisterTenantDTO) => {
-    const { firstName, lastName, email } = body;
+    const { firstName, lastName, email, phone,} =
+      body;
 
     // Cek apakah email sudah ada
-    const existingTenant = await this.prisma.user.findFirst({
+    const existingUser = await this.prisma.user.findFirst({
       where: { email, isDeleted: false },
     });
-    if (existingTenant) throw new ApiError("Email already exists", 400);
+    if (existingUser) throw new ApiError("Email already exists", 400);
 
-    // Buat tenant baru (user dengan role TENANT)
-    const newTenant = await this.prisma.user.create({
+    // Buat user baru dengan role TENANT
+    const newUser = await this.prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -134,36 +135,46 @@ export class AuthService {
         resetPasswordTokenUsed: false,
       },
       select: {
-        ...prismaExclude("User", ["password"]),
         id: true,
         email: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    // Buat record Tenant yang terkait
+    const newTenant = await this.prisma.tenant.create({
+      data: {
+        userId: newUser.id,
+        name: `${firstName} ${lastName}`,
+        phone: phone || null,
+
       },
     });
 
     // Generate token verifikasi email
-    const tokenPayload = { id: newTenant.id, email: newTenant.email };
+    const tokenPayload = { id: newUser.id, email: newUser.email };
     const emailVerificationToken = this.tokenService.generateToken(
       tokenPayload,
       process.env.JWT_SECRET_VERIFICATION!,
       { expiresIn: "15m" }
     );
 
-    // Link verifikasi
     const verificationLink = `${process.env.FRONTEND_URL}/sign-up/set-password?token=${emailVerificationToken}`;
 
     // Kirim email verifikasi
     await this.mailService.sendVerificationEmail(
-      newTenant.email,
+      newUser.email,
       verificationLink
     );
 
     // Update timestamp email dikirim
     await this.prisma.user.update({
-      where: { id: newTenant.id },
+      where: { id: newUser.id },
       data: { verificationSentAt: new Date() },
     });
 
-    return newTenant;
+    return { ...newUser, tenant: newTenant };
   };
 
   /** VERIFY EMAIL & SET PASSWORD */
