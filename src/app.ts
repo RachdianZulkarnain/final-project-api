@@ -11,6 +11,7 @@ import { CategoryRouter } from "./modules/category/category.router";
 import { RoomRouter } from "./modules/room/room.router";
 import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.router";
 import { RoomNonAvailabilityRouter } from "./modules/room-non-availability/roomNonAvailability.router";
+import { PaymentRouter } from "./modules/payment/payment.router";
 
 export default class App {
   public app: Express;
@@ -39,6 +40,8 @@ export default class App {
     const roomNonAvailabilityRouter = container.resolve(
       RoomNonAvailabilityRouter
     );
+    const paymentRouter = container.resolve(PaymentRouter);
+    ;
 
     this.app.use("/auth", authRouter.getRouter());
     this.app.use("/user", userRouter.getRouter());
@@ -50,6 +53,7 @@ export default class App {
       "/room-non-availabilities",
       roomNonAvailabilityRouter.getRouter()
     );
+    this.app.use("/payments", paymentRouter.getRouter());
   }
 
   private handleError() {
