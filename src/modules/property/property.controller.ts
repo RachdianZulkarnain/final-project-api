@@ -141,28 +141,26 @@ export class PropertyController {
   ) => {
     try {
       const query = {
-        take: parseInt(req.query.take as string) || 10,
-        page: parseInt(req.query.page as string) || 1,
-        sortBy: (req.query.sortBy as string) || "createdAt",
-        sortOrder: (req.query.sortOrder as string) || "desc",
-        search: (req.query.search as string) || "",
-        guest: req.query.guest ? Number(req.query.guest) : 2,
-        title: (req.query.title as string) || "",
-        startDate: req.query.startDate
-          ? new Date(req.query.startDate as string)
-          : undefined,
-        endDate: req.query.endDate
-          ? new Date(req.query.endDate as string)
-          : undefined,
+        take: req.query.take ? Number(req.query.take) : 10,
+        page: req.query.page ? Number(req.query.page) : 1,
+        search: req.query.search || "",
       };
+
+      const tenantId = Number(res.locals.user.id);
+      if (!tenantId) throw new Error("Tenant ID not found in token");
 
       const result = await this.propertyService.getTenantProperties(
         query,
-        Number(res.locals.user.id)
+        tenantId
       );
 
-      res.status(200).send(result);
+      res.status(200).json({
+        message: "Tenant properties fetched successfully",
+        data: result.data,
+        meta: result.meta,
+      });
     } catch (error) {
+      console.error("Controller getTenantProperties error:", error);
       next(error);
     }
   };

@@ -19,12 +19,15 @@ export class PropertyRouter {
   }
 
   private initializeRoutes = (): void => {
+    // GET PROPERTIES ADVANCED (public)
+    this.router.get("/", this.propertyController!.getPropertiesController);
+
     // ================= PUBLIC ROUTES =================
     // GET PROPERTIES (by query: search, filter, pagination, etc.)
     this.router.get("/search", this.propertyController!.getPropertiesByQuery);
 
     // ================= TENANT ROUTES =================
-    // GET TENANT PROPERTIES (list by tenant)
+    // GET TENANT PROPERTIES
     this.router.get(
       "/tenant",
       this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),

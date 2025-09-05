@@ -251,7 +251,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: true,
         property: true,
       },
     });
@@ -304,7 +303,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: true,
         property: true,
       },
     });
@@ -323,11 +321,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: {
-          include: {
-            payment: true,
-          },
-        },
         property: true,
       },
     });
