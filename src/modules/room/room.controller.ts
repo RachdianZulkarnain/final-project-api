@@ -116,8 +116,7 @@ export class RoomController {
       const result = await this.roomService.updateRoom(
         Number(req.params.id),
         req.body,
-        req.file!,
-        tenantId
+        req.file!
       );
 
       res.status(200).send(result);

@@ -374,63 +374,42 @@ export class PropertyService {
   };
 
   // ================= GET TENANT PROPERTIES =================
-  getTenantProperties = async (
-    query: PaginationQueryParams & { search?: string },
-    userId: number
-  ) => {
-    const {
-      take,
-      page,
-      sortBy = "createdAt",
-      sortOrder = "asc",
-      search,
-    } = query;
+  getTenantProperties = async (query: any, tenantId: number) => {
+    const { page = 1, take = 10, search } = query;
+    const skip = (page - 1) * take;
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new ApiError("User not found", 404);
-    if (user.role !== Role.TENANT) {
-      throw new ApiError("User doesn't have access", 403);
+    try {
+      const whereClause: any = {
+        tenantId,
+        isDeleted: false,
+      };
+
+      if (search) {
+        whereClause.title = { contains: search, mode: "insensitive" };
+      }
+
+      const [properties, totalCount] = await Promise.all([
+        this.prisma.property.findMany({
+          where: whereClause,
+          skip,
+          take,
+          orderBy: { createdAt: "desc" },
+          include: {
+            propertyImage: { where: { isDeleted: false } },
+            room: { where: { isDeleted: false } },
+          },
+        }),
+        this.prisma.property.count({ where: whereClause }),
+      ]);
+
+      return {
+        data: properties,
+        meta: { totalCount, page, take },
+      };
+    } catch (error) {
+      console.error("Service getTenantProperties error:", error);
+      throw error;
     }
-
-    const tenant = await this.prisma.tenant.findFirst({
-      where: { userId: user.id, isDeleted: false },
-    });
-    if (!tenant) throw new ApiError("Tenant not found", 404);
-
-    const whereClause: Prisma.PropertyWhereInput = {
-      isDeleted: false,
-      tenantId: tenant.id,
-    };
-
-    if (search) {
-      whereClause.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    const properties = await this.prisma.property.findMany({
-      where: whereClause,
-      skip: (page - 1) * take,
-      take: take,
-      orderBy: { [sortBy]: sortOrder },
-      include: {
-        propertyImage: { select: { imageUrl: true } },
-        review: { select: { rating: true } },
-        tenant: { select: { name: true } },
-        room: { select: { price: true } },
-      },
-    });
-
-    const count = await this.prisma.property.count({ where: whereClause });
-    return {
-      data: properties,
-      meta: {
-        page,
-        take,
-        total: count,
-      },
-    };
   };
 
   // ================= GET PROPERTY DETAIL (TENANT) =================
@@ -676,27 +655,7 @@ export class PropertyService {
             some: {
               isDeleted: false,
               ...(guest && { guest: { gte: guest } }),
-              reservation: {
-                none: {
-                  AND: [
-                    {
-                      payment: {
-                        status: {
-                          in: [
-                            "WAITING_FOR_PAYMENT_CONFIRMATION",
-                            "PROCESSED",
-                            "CHECKED_IN",
-                          ],
-                        },
-                      },
-                    },
-                    {
-                      startDate: { lte: new Date(endDate) },
-                      endDate: { gte: new Date(startDate) },
-                    },
-                  ],
-                },
-              },
+
               roomNonAvailability: {
                 none: {
                   isDeleted: false,
@@ -742,7 +701,6 @@ export class PropertyService {
               roomImage: { where: { isDeleted: false } },
               roomFacility: { where: { isDeleted: false } },
               peakSeasonRate: { where: { isDeleted: false } },
-              reservation: { include: { payment: true } },
               roomNonAvailability: { where: { isDeleted: false } },
             },
           },
@@ -781,9 +739,6 @@ export class PropertyService {
               roomNonAvailability: {
                 where: { isDeleted: false },
               },
-              reservation: {
-                include: { payment: true },
-              },
             },
           },
           propertyImage: true,
@@ -805,4 +760,3 @@ export class PropertyService {
     }
   };
 }
-

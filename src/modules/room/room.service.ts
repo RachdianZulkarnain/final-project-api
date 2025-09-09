@@ -127,7 +127,6 @@ export class RoomService {
     id: number,
     body: Partial<UpdateRoomBody>,
     file: Express.Multer.File | undefined,
-    tenantId: number
   ) => {
     const existingRoom = await this.prisma.room.findUnique({
       where: { id },
@@ -138,9 +137,8 @@ export class RoomService {
       },
     });
 
-    if (!existingRoom) throw new ApiError("Room not found", 404);
-    if (existingRoom.property.tenantId !== tenantId) {
-      throw new ApiError("You don't have permission to update this room", 403);
+    if (!existingRoom) {
+      throw new Error("Room not found");
     }
 
     let secureUrl: string | undefined;
@@ -152,6 +150,10 @@ export class RoomService {
     if (body.stock !== undefined) body.stock = Number(body.stock);
     if (body.price !== undefined) body.price = Number(body.price);
     if (body.guest !== undefined) body.guest = Number(body.guest);
+
+    if ("propertyId" in body) {
+      delete body["propertyId"];
+    }
 
     const { facilities, ...roomData } = body;
 
@@ -251,7 +253,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: true,
         property: true,
       },
     });
@@ -304,7 +305,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: true,
         property: true,
       },
     });
@@ -323,11 +323,6 @@ export class RoomService {
         roomImage: true,
         roomNonAvailability: true,
         peakSeasonRate: true,
-        reservation: {
-          include: {
-            payment: true,
-          },
-        },
         property: true,
       },
     });
