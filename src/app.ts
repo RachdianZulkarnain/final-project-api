@@ -12,6 +12,7 @@ import { RoomRouter } from "./modules/room/room.router";
 import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.router";
 import { RoomNonAvailabilityRouter } from "./modules/room-non-availability/roomNonAvailability.router";
 import { PaymentRouter } from "./modules/payment/payment.router";
+import { CalendarRouter } from "./modules/calender/calender.router";
 
 export default class App {
   public app: Express;
@@ -41,7 +42,7 @@ export default class App {
       RoomNonAvailabilityRouter
     );
     const paymentRouter = container.resolve(PaymentRouter);
-    ;
+    const calendarRouter = container.resolve(CalendarRouter);
 
     this.app.use("/auth", authRouter.getRouter());
     this.app.use("/user", userRouter.getRouter());
@@ -54,6 +55,7 @@ export default class App {
       roomNonAvailabilityRouter.getRouter()
     );
     this.app.use("/payments", paymentRouter.getRouter());
+    this.app.use("/calendar", calendarRouter.getRouter());
   }
 
   private handleError() {
