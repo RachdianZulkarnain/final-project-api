@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { injectable } from "tsyringe";
 import { RoomService, GetRoomsQuery } from "./room.service";
 
-@injectable()
 export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+  private roomService: RoomService;
+
+  constructor() {
+    this.roomService = new RoomService();
+  }
 
   // ================= CREATE ROOM =================
   createRoom = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +31,7 @@ export class RoomController {
         tenantId
       );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -51,7 +53,7 @@ export class RoomController {
       };
 
       const result = await this.roomService.getRooms(query);
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -77,7 +79,7 @@ export class RoomController {
         Number(res.locals.user.id)
       );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -87,7 +89,7 @@ export class RoomController {
   getRoom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.roomService.getRoom(Number(req.params.id));
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -111,15 +113,13 @@ export class RoomController {
         throw new Error("Facilities must be provided as an array");
       }
 
-      const tenantId = Number(res.locals.user.id);
-
       const result = await this.roomService.updateRoom(
         Number(req.params.id),
         req.body,
         req.file!
       );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -133,7 +133,7 @@ export class RoomController {
         Number(res.locals.user.id)
       );
 
-      res.status(200).send({ message: "Delete room success", result });
+      res.status(200).json({ message: "Delete room success", result });
     } catch (error) {
       next(error);
     }

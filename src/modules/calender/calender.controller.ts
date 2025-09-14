@@ -1,10 +1,54 @@
 import { Request, Response, NextFunction } from "express";
-import { injectable } from "tsyringe";
 import { CalendarService } from "./calender.service";
 
-@injectable()
 export class CalendarController {
-  constructor(private readonly roomPricingService: CalendarService) {}
+  private calendarService: CalendarService;
+
+  constructor() {
+    this.calendarService = new CalendarService();
+  }
+
+  // ================= GET MONTHLY CALENDAR =================
+  getMonthlyCalendar = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { roomId } = req.params;
+      let { date } = req.query;
+
+      let parsedDate: Date;
+      if (!date) {
+        parsedDate = new Date();
+      } else {
+        parsedDate = new Date(date as string);
+        if (isNaN(parsedDate.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid date format. Please use YYYY-MM-DD format.",
+          });
+        }
+      }
+
+      // Set ke awal bulan
+      parsedDate.setDate(1);
+      parsedDate.setHours(0, 0, 0, 0);
+
+      const calendarData =
+        await this.calendarService.getMonthlyAvailabilityAndPricing(
+          parseInt(roomId),
+          parsedDate
+        );
+
+      res.status(200).json({
+        success: true,
+        data: calendarData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   // ================= COMPARE ROOM PRICING =================
   compareRoomPricing = async (
@@ -46,7 +90,7 @@ export class CalendarController {
         });
       }
 
-      const comparisonData = await this.roomPricingService.compareRoomPricing(
+      const comparisonData = await this.calendarService.compareRoomPricing(
         roomIds.map((id: string | number) => Number(id)),
         parsedStartDate,
         parsedEndDate
@@ -85,7 +129,7 @@ export class CalendarController {
       }
 
       const result =
-        await this.roomPricingService.getPropertyMonthlyPriceComparison(
+        await this.calendarService.getPropertyMonthlyPriceComparison(
           parseInt(propertyId),
           parsedDate
         );
@@ -97,48 +141,6 @@ export class CalendarController {
           parsedDate.getMonth() + 1
         ).padStart(2, "0")}`,
         data: result.data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // ================= GET MONTHLY CALENDAR =================
-  getMonthlyCalendar = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { roomId } = req.params;
-      let { date } = req.query;
-
-      let parsedDate: Date;
-      if (!date) {
-        parsedDate = new Date();
-      } else {
-        parsedDate = new Date(date as string);
-        if (isNaN(parsedDate.getTime())) {
-          return res.status(400).json({
-            success: false,
-            message: "Invalid date format. Please use YYYY-MM-DD format.",
-          });
-        }
-      }
-
-      // Set ke awal bulan
-      parsedDate.setDate(1);
-      parsedDate.setHours(0, 0, 0, 0);
-
-      const calendarData =
-        await this.roomPricingService.getMonthlyAvailabilityAndPricing(
-          parseInt(roomId),
-          parsedDate
-        );
-
-      res.status(200).json({
-        success: true,
-        data: calendarData,
       });
     } catch (error) {
       next(error);

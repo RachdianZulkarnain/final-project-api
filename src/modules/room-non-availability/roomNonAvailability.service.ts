@@ -1,8 +1,6 @@
-// room-non-availability.service.ts
-import { injectable } from "tsyringe";
+import { Prisma } from "../../generated/prisma";
 import { PrismaService } from "../prisma/prisma.service";
 import { ApiError } from "../../utils/api-error";
-import { Prisma } from "../../generated/prisma";
 import { areIntervalsOverlapping } from "date-fns";
 
 export interface CreateRoomNonAvailabilityBody {
@@ -31,11 +29,14 @@ export interface UpdateRoomNonAvailabilityBody {
   roomId?: number;
 }
 
-@injectable()
 export class RoomNonAvailabilityService {
-  constructor(private readonly prisma: PrismaService) {}
+  private prisma: PrismaService;
 
-  // ================= CREATE ROOM NON AVAILABILITY =================
+  constructor() {
+    this.prisma = new PrismaService();
+  }
+
+  /** CREATE ROOM NON AVAILABILITY */
   createRoomNonAvailability = async (
     userId: number,
     body: CreateRoomNonAvailabilityBody
@@ -97,7 +98,7 @@ export class RoomNonAvailabilityService {
     );
   };
 
-  // ================= GET ROOM NON AVAILABILITIES =================
+  /** GET ROOM NON AVAILABILITIES */
   getRoomNonAvailabilities = async (
     query: GetRoomNonAvailabilitiesQuery,
     userId: number
@@ -152,7 +153,7 @@ export class RoomNonAvailabilityService {
     return { data: roomNonAvailabilities, meta: { page, take, total: count } };
   };
 
-  // ================= UPDATE ROOM NON AVAILABILITY =================
+  /** UPDATE ROOM NON AVAILABILITY */
   updateRoomNonAvailability = async (
     id: number,
     body: Partial<UpdateRoomNonAvailabilityBody>
@@ -200,7 +201,7 @@ export class RoomNonAvailabilityService {
     };
   };
 
-  // ================= DELETE ROOM NON AVAILABILITY =================
+  /** DELETE ROOM NON AVAILABILITY */
   deleteRoomNonAvailability = async (id: number) => {
     const existingRecord = await this.prisma.roomNonAvailability.findUnique({
       where: { id },

@@ -1,18 +1,18 @@
 import { Router } from "express";
-import { autoInjectable } from "tsyringe";
-import { isTenant } from "../../lib/isTenant";
+import { PeakSeasonController } from "./peakSeasonRate.controller";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
-import { PeakSeasonController } from "./peakSeasonRate.controller";
+import { isTenant } from "../../lib/isTenant";
 
-@autoInjectable()
 export class PeakSeasonRouter {
-  private readonly router: Router = Router();
+  private router: Router;
+  private peakSeasonController: PeakSeasonController;
+  private jwtMiddleware: JwtMiddleware;
 
-  constructor(
-    private readonly peakSeasonController?: PeakSeasonController,
-    private readonly jwtMiddleware?: JwtMiddleware
-  ) {
+  constructor() {
+    this.router = Router();
+    this.peakSeasonController = new PeakSeasonController();
+    this.jwtMiddleware = new JwtMiddleware();
     this.initializeRoutes();
   }
 
@@ -20,37 +20,37 @@ export class PeakSeasonRouter {
     // ================= GET PEAK SEASONS =================
     this.router.get(
       "/",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
-      this.peakSeasonController!.getPeakSeasonsRate
+      this.peakSeasonController.getPeakSeasonsRate
     );
 
     // ================= CREATE PEAK SEASON RATE =================
     this.router.post(
       "/",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
-      this.peakSeasonController!.createPeakSeasonRate
+      this.peakSeasonController.createPeakSeasonRate
     );
 
     // ================= UPDATE PEAK SEASON RATE =================
     this.router.patch(
       "/:id",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
-      this.peakSeasonController!.updatePeakSeasonRate
+      this.peakSeasonController.updatePeakSeasonRate
     );
 
     // ================= DELETE PEAK SEASON RATE =================
     this.router.delete(
       "/:id",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
-      this.peakSeasonController!.deletePeakSeasonRate
+      this.peakSeasonController.deletePeakSeasonRate
     );
   };
 
-  getRouter(): Router {
+  getRouter = (): Router => {
     return this.router;
-  }
+  };
 }

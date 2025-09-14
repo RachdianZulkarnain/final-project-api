@@ -1,18 +1,17 @@
 import { Router } from "express";
-import { autoInjectable } from "tsyringe";
-import { isTenant } from "../../lib/isTenant";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
 import { CalendarController } from "./calender.controller";
 
-@autoInjectable()
 export class CalendarRouter {
-  private readonly router: Router = Router();
+  private readonly router: Router;
+  private readonly calendarController: CalendarController;
+  private readonly jwtMiddleware: JwtMiddleware;
 
-  constructor(
-    private readonly roomPricingController?: CalendarController,
-    private readonly jwtMiddleware?: JwtMiddleware
-  ) {
+  constructor() {
+    this.router = Router();
+    this.calendarController = new CalendarController();
+    this.jwtMiddleware = new JwtMiddleware();
     this.initializeRoutes();
   }
 
@@ -20,25 +19,22 @@ export class CalendarRouter {
     // ================= GET MONTHLY CALENDAR =================
     this.router.get(
       "/room/:roomId",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
-      isTenant,
-      this.roomPricingController!.getMonthlyCalendar
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.calendarController.getMonthlyCalendar
     );
 
     // ================= COMPARE ROOM PRICING =================
     this.router.post(
       "/compare",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
-      isTenant,
-      this.roomPricingController!.compareRoomPricing
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.calendarController.compareRoomPricing
     );
 
     // ================= GET PROPERTY MONTHLY PRICE COMPARISON =================
     this.router.get(
       "/property/:propertyId",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
-      isTenant,
-      this.roomPricingController!.getPropertyMonthlyPriceComparison
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.calendarController.getPropertyMonthlyPriceComparison
     );
   };
 

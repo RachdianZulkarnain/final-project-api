@@ -1,4 +1,3 @@
-import { injectable } from "tsyringe";
 import { PrismaService } from "../prisma/prisma.service";
 import { ApiError } from "../../utils/api-error";
 import { Prisma, PropertyCategory, Role } from "../../generated/prisma";
@@ -15,10 +14,12 @@ interface GetCategoriesQuery {
   search?: string;
 }
 
-@injectable()
 export class CategoryService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly prisma: PrismaService;
 
+  constructor() {
+    this.prisma = new PrismaService();
+  }
   // ================= CREATE CATEGORY =================
   createCategory = async (
     body: CreateCategoryBody,
@@ -60,12 +61,10 @@ export class CategoryService {
     });
 
     if (deletedCategory) {
-      const restoredCategory = await this.prisma.propertyCategory.update({
+      return this.prisma.propertyCategory.update({
         where: { id: deletedCategory.id },
         data: { isDeleted: false },
       });
-
-      return restoredCategory;
     }
 
     // check if category already exists (not deleted)
@@ -81,16 +80,13 @@ export class CategoryService {
       throw new ApiError("Category already exists for this tenant", 400);
     }
 
-    // create new category
-    const newCategory = await this.prisma.propertyCategory.create({
+    return this.prisma.propertyCategory.create({
       data: {
         name,
         tenantId: tenant.id,
         isDeleted: false,
       },
     });
-
-    return newCategory;
   };
 
   // ================= GET CATEGORIES =================
@@ -129,7 +125,7 @@ export class CategoryService {
     const categories = await this.prisma.propertyCategory.findMany({
       where: whereClause,
       skip: (page - 1) * take,
-      take: take,
+      take,
       orderBy: { [sortBy]: sortOrder },
     });
 
@@ -148,9 +144,7 @@ export class CategoryService {
     const category = await this.prisma.propertyCategory.findFirst({
       where: { id, isDeleted: false },
       include: {
-        properties: {
-          where: { isDeleted: false },
-        },
+        properties: { where: { isDeleted: false } },
       },
     });
 
@@ -190,7 +184,7 @@ export class CategoryService {
     }
 
     if (name !== category.name) {
-      // Cek category aktif dengan nama sama
+      // cek category aktif dengan nama sama
       const existingActiveCategory =
         await this.prisma.propertyCategory.findFirst({
           where: {
@@ -205,7 +199,7 @@ export class CategoryService {
         throw new ApiError("Category name already exists for this tenant", 400);
       }
 
-      // Hapus category deleted dengan nama sama
+      // hapus category deleted dengan nama sama
       const existingDeletedCategory =
         await this.prisma.propertyCategory.findFirst({
           where: {
@@ -254,7 +248,7 @@ export class CategoryService {
     const categories = await this.prisma.propertyCategory.findMany({
       where: whereClause,
       skip: (page - 1) * take,
-      take: take,
+      take,
       orderBy: { [sortBy]: sortOrder },
     });
 

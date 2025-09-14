@@ -1,4 +1,3 @@
-import { injectable } from "tsyringe";
 import { PrismaService } from "../prisma/prisma.service";
 import { ApiError } from "../../utils/api-error";
 import { Prisma, Role } from "../../generated/prisma";
@@ -30,11 +29,14 @@ interface GetPeakSeasonsQuery {
   roomId?: number;
 }
 
-@injectable()
 export class PeakSeasonService {
-  constructor(private readonly prisma: PrismaService) {}
+  private prisma: PrismaService;
 
-  // ================= CREATE PEAK SEASON RATE =================
+  constructor() {
+    this.prisma = new PrismaService();
+  }
+
+  /** CREATE PEAK SEASON RATE */
   createPeakSeason = async (userId: number, body: CreatePeakSeasonBody) => {
     const { price, startDate, endDate, roomId } = body;
 
@@ -92,7 +94,7 @@ export class PeakSeasonService {
     return { message: "Peak Season Rate created successfully", data: newPeak };
   };
 
-  // ================= GET PEAK SEASON RATES =================
+  /** GET PEAK SEASON RATES */
   getPeakSeasons = async (query: GetPeakSeasonsQuery, userId: number) => {
     const {
       take = 10,
@@ -144,13 +146,13 @@ export class PeakSeasonService {
     return { data, meta: { page, take, total } };
   };
 
-  // ================= UPDATE PEAK SEASON RATE =================
+  /** UPDATE PEAK SEASON RATE */
   updatePeakSeasonRate = async (
     userId: number,
     id: number,
     body: UpdatePeakSeasonBody
   ) => {
-    const { price, startDate, endDate, roomId } = body;
+    const { startDate, endDate } = body;
 
     const peakSeason = await this.prisma.peakSeasonRate.findUnique({
       where: { id },
@@ -199,7 +201,7 @@ export class PeakSeasonService {
     };
   };
 
-  // ================= DELETE PEAK SEASON RATE =================
+  /** DELETE PEAK SEASON RATE */
   deletePeakSeasonRate = async (userId: number, id: number) => {
     const peakSeason = await this.prisma.peakSeasonRate.findUnique({
       where: { id },
@@ -209,7 +211,6 @@ export class PeakSeasonService {
     });
 
     if (!peakSeason) throw new ApiError("Peak Season Rate not found", 404);
-
     if (peakSeason.room.property.tenant.userId !== userId)
       throw new ApiError(
         "Unauthorized: Peak Season Rate does not belong to this tenant",

@@ -1,6 +1,4 @@
-// room-non-availability.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { injectable } from "tsyringe";
 import {
   CreateRoomNonAvailabilityBody,
   GetRoomNonAvailabilitiesQuery,
@@ -8,12 +6,12 @@ import {
   RoomNonAvailabilityService,
 } from "./roomNonAvailability.service";
 
-@injectable()
 export class RoomNonAvailabilityController {
-  constructor(
-    private readonly roomNonAvailabilityService: RoomNonAvailabilityService
-  ) {}
+  private roomNonAvailabilityService: RoomNonAvailabilityService;
 
+  constructor() {
+    this.roomNonAvailabilityService = new RoomNonAvailabilityService();
+  }
   // ================= CREATE ROOM NON AVAILABILITY =================
   createRoomNonAvailability = async (
     req: Request,
@@ -36,7 +34,7 @@ export class RoomNonAvailabilityController {
           payload
         );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -71,7 +69,7 @@ export class RoomNonAvailabilityController {
           Number(res.locals.user.id)
         );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -99,7 +97,7 @@ export class RoomNonAvailabilityController {
           payload
         );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -117,7 +115,7 @@ export class RoomNonAvailabilityController {
           Number(req.params.id)
         );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

@@ -15,7 +15,7 @@ export class JwtMiddleware {
       if (req.headers.authorization?.startsWith("Bearer ")) {
         token = req.headers.authorization.split(" ")[1];
       } else if (req.query.token) {
-        token = req.query.token as string;
+        token = req.query.token as string;  
       } else if (req.body.token) {
         token = req.body.token;
       }

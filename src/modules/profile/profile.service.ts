@@ -1,12 +1,15 @@
-import { injectable } from "tsyringe";
 import { ApiError } from "../../utils/api-error";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateUserDTO } from "./dto/updateUser.dto";
 
-@injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  private prisma: PrismaService;
 
+  constructor() {
+    this.prisma = new PrismaService();
+  }
+
+  /** GET USER */
   getUser = async (authUserId: number) => {
     const user = await this.prisma.user.findUnique({
       where: { id: authUserId },
@@ -16,17 +19,17 @@ export class UserService {
       throw new ApiError("Invalid user id", 404);
     }
 
-    const { password: pw, ...userWithoutPassword } = user;
-
-    return { ...userWithoutPassword };
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   };
 
+  /** UPDATE USER */
   updateUser = async (authUserId: number, body: UpdateUserDTO) => {
     const { firstName, lastName, email } = body;
+
     const user = await this.prisma.user.findUnique({
       where: { id: authUserId },
     });
-
     if (!user) {
       throw new ApiError("Invalid user id", 404);
     }
@@ -43,16 +46,15 @@ export class UserService {
       },
     });
 
-    const { password: pw, ...updatedUserWithoutPassword } = updatedUser;
-
-    return { ...updatedUserWithoutPassword };
+    const { password, ...updatedUserWithoutPassword } = updatedUser;
+    return updatedUserWithoutPassword;
   };
 
+  /** UPLOAD PROFILE PICTURE */
   uploadProfilePic = async (authUserId: number, uploadPath: string) => {
     const user = await this.prisma.user.findUnique({
       where: { id: authUserId },
     });
-
     if (!user) throw new ApiError("Invalid user id", 404);
 
     const updatedUser = await this.prisma.user.update({

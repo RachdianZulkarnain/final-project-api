@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { injectable } from "tsyringe";
 import { PeakSeasonService } from "./peakSeasonRate.service";
 
-@injectable()
 export class PeakSeasonController {
-  constructor(private readonly peakSeasonService: PeakSeasonService) {}
+  private peakSeasonService: PeakSeasonService;
+
+  constructor() {
+    this.peakSeasonService = new PeakSeasonService();
+  }
 
   // ================= CREATE PEAK SEASON RATE =================
   createPeakSeasonRate = async (
@@ -21,7 +23,7 @@ export class PeakSeasonController {
         body
       );
 
-      res.status(201).send({
+      res.status(201).json({
         message: "Peak Season Rate created successfully",
         data: result.data,
       });
@@ -61,7 +63,7 @@ export class PeakSeasonController {
         Number(res.locals.user.id)
       );
 
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -79,7 +81,7 @@ export class PeakSeasonController {
         Number(req.params.id),
         req.body
       );
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -96,7 +98,7 @@ export class PeakSeasonController {
         Number(res.locals.user.id),
         Number(req.params.id)
       );
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
