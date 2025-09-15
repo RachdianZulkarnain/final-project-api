@@ -6,6 +6,7 @@ import { PORT } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
 import { AuthRouter } from "./modules/auth/auth.router";
+import { AccountRouter } from "./modules/account/account.router";
 import { UserRouter } from "./modules/profile/profile.router";
 import { PropertyRouter } from "./modules/property/property.router";
 import { CategoryRouter } from "./modules/category/category.router";
@@ -34,6 +35,7 @@ export class App {
 
   private routes() {
     const authRouter = new AuthRouter();
+    const accountRouter = new AccountRouter();
     const userRouter = new UserRouter();
     const propertyRouter = new PropertyRouter();
     const categoryRouter = new CategoryRouter();
@@ -44,6 +46,7 @@ export class App {
     const calendarRouter = new CalendarRouter();
 
     this.app.use("/auth", authRouter.getRouter());
+    this.app.use("/account", accountRouter.getRouter());
     this.app.use("/user", userRouter.getRouter());
     this.app.use("/properties", propertyRouter.getRouter());
     this.app.use("/categories", categoryRouter.getRouter());
