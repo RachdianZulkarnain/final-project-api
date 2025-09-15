@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { injectable } from "tsyringe";
 import { CategoryService } from "./category.service";
 
-@injectable()
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  private readonly categoryService: CategoryService;
+
+  constructor() {
+    this.categoryService = new CategoryService();
+  }
 
   // ================= CREATE CATEGORY =================
   createCategory = async (req: Request, res: Response, next: NextFunction) => {

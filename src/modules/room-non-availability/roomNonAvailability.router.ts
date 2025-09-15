@@ -1,19 +1,18 @@
-// room-non-availability.router.ts
 import { Router } from "express";
-import { autoInjectable } from "tsyringe";
-import { isTenant } from "../../lib/isTenant";
+import { RoomNonAvailabilityController } from "./roomNonAvailability.controller";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
-import { RoomNonAvailabilityController } from "./roomNonAvailability.controller";
+import { isTenant } from "../../lib/isTenant";
 
-@autoInjectable()
 export class RoomNonAvailabilityRouter {
-  private readonly router: Router = Router();
+  private router: Router;
+  private roomNonAvailabilityController: RoomNonAvailabilityController;
+  private jwtMiddleware: JwtMiddleware;
 
-  constructor(
-    private readonly roomNonAvailabilityController?: RoomNonAvailabilityController,
-    private readonly jwtMiddleware?: JwtMiddleware
-  ) {
+  constructor() {
+    this.router = Router();
+    this.roomNonAvailabilityController = new RoomNonAvailabilityController();
+    this.jwtMiddleware = new JwtMiddleware();
     this.initializeRoutes();
   }
 
@@ -21,37 +20,37 @@ export class RoomNonAvailabilityRouter {
     // ================= GET ROOM NON AVAILABILITIES =================
     this.router.get(
       "/",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       isTenant,
-      this.roomNonAvailabilityController!.getRoomNonAvailabilities
+      this.roomNonAvailabilityController.getRoomNonAvailabilities
     );
 
     // ================= CREATE ROOM NON AVAILABILITY =================
     this.router.post(
       "/room",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       isTenant,
-      this.roomNonAvailabilityController!.createRoomNonAvailability
+      this.roomNonAvailabilityController.createRoomNonAvailability
     );
 
     // ================= UPDATE ROOM NON AVAILABILITY =================
     this.router.patch(
       "/room/:id",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       isTenant,
-      this.roomNonAvailabilityController!.updateRoomNonAvailability
+      this.roomNonAvailabilityController.updateRoomNonAvailability
     );
 
     // ================= DELETE ROOM NON AVAILABILITY =================
     this.router.delete(
       "/room/:id",
-      this.jwtMiddleware!.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       isTenant,
-      this.roomNonAvailabilityController!.deleteRoomNonAvailability
+      this.roomNonAvailabilityController.deleteRoomNonAvailability
     );
   };
 
-  getRouter(): Router {
+  getRouter = (): Router => {
     return this.router;
-  }
+  };
 }

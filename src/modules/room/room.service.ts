@@ -1,8 +1,6 @@
-// room.service.ts
-import { injectable } from "tsyringe";
-import { PrismaService } from "../prisma/prisma.service";
-import { ApiError } from "../../utils/api-error";
 import { Prisma } from "../../generated/prisma";
+import { ApiError } from "../../utils/api-error";
+import { PrismaService } from "../prisma/prisma.service";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 
 interface RoomFacility {
@@ -42,14 +40,16 @@ export interface GetRoomsQuery extends PaginationQueryParams {
   search?: string;
 }
 
-@injectable()
 export class RoomService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly cloudinaryService: CloudinaryService
-  ) {}
+  private prisma: PrismaService;
+  private cloudinaryService: CloudinaryService;
 
-  // ================= CREATE ROOM =================
+  constructor() {
+    this.prisma = new PrismaService();
+    this.cloudinaryService = new CloudinaryService();
+  }
+
+  /** ================= CREATE ROOM ================= */
   createRoom = async (
     body: CreateRoomBody,
     file: Express.Multer.File,
@@ -64,10 +64,7 @@ export class RoomService {
     const property = await this.prisma.property.findFirst({
       where: { id: Number(propertyId), tenantId },
     });
-
-    if (!property) {
-      throw new ApiError("Property not found", 404);
-    }
+    if (!property) throw new ApiError("Property not found", 404);
 
     if (!facilities || !Array.isArray(facilities) || facilities.length === 0) {
       throw new ApiError("At least one facility must be provided", 400);
@@ -79,54 +76,49 @@ export class RoomService {
       secureUrl = uploadResult.secure_url;
     }
 
-    return await this.prisma.$transaction(
-      async (tx: Prisma.TransactionClient) => {
-        const newRoom = await tx.room.create({
-          data: {
-            type,
-            name,
-            stock: stockRoom,
-            price: priceRoom,
-            guest: guestRoom,
-            property: { connect: { id: property.id } },
-          },
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const newRoom = await tx.room.create({
+        data: {
+          type,
+          name,
+          stock: stockRoom,
+          price: priceRoom,
+          guest: guestRoom,
+          property: { connect: { id: property.id } },
+        },
+      });
+
+      if (file && secureUrl) {
+        await tx.roomImage.create({
+          data: { imageUrl: secureUrl, roomId: newRoom.id },
         });
-
-        if (file && secureUrl) {
-          await tx.roomImage.create({
-            data: { imageUrl: secureUrl, roomId: newRoom.id },
-          });
-        }
-
-        const facilityPromises = facilities.map((facility) =>
-          tx.roomFacility.create({
-            data: {
-              title: facility.title,
-              description: facility.description,
-              roomId: newRoom.id,
-            },
-          })
-        );
-        await Promise.all(facilityPromises);
-
-        const roomWithRelations = await tx.room.findUnique({
-          where: { id: newRoom.id },
-          include: { roomFacility: true, roomImage: true },
-        });
-
-        return {
-          message: "Create Room success",
-          data: roomWithRelations,
-        };
       }
-    );
+
+      const facilityPromises = facilities.map((facility) =>
+        tx.roomFacility.create({
+          data: {
+            title: facility.title,
+            description: facility.description,
+            roomId: newRoom.id,
+          },
+        })
+      );
+      await Promise.all(facilityPromises);
+
+      const roomWithRelations = await tx.room.findUnique({
+        where: { id: newRoom.id },
+        include: { roomFacility: true, roomImage: true },
+      });
+
+      return { message: "Create Room success", data: roomWithRelations };
+    });
   };
 
-  // ================= UPDATE ROOM =================
+  /** ================= UPDATE ROOM ================= */
   updateRoom = async (
     id: number,
     body: Partial<UpdateRoomBody>,
-    file: Express.Multer.File | undefined,
+    file?: Express.Multer.File
   ) => {
     const existingRoom = await this.prisma.room.findUnique({
       where: { id },
@@ -136,10 +128,7 @@ export class RoomService {
         roomFacility: { where: { isDeleted: false } },
       },
     });
-
-    if (!existingRoom) {
-      throw new Error("Room not found");
-    }
+    if (!existingRoom) throw new ApiError("Room not found", 404);
 
     let secureUrl: string | undefined;
     if (file) {
@@ -151,15 +140,12 @@ export class RoomService {
     if (body.price !== undefined) body.price = Number(body.price);
     if (body.guest !== undefined) body.guest = Number(body.guest);
 
-    if ("propertyId" in body) {
-      delete body["propertyId"];
-    }
+    if ("propertyId" in body) delete body["propertyId"];
 
     const { facilities, ...roomData } = body;
-
     const updatedData: Prisma.RoomUpdateInput = { ...roomData };
 
-    return await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const updatedRoom = await tx.room.update({
         where: { id },
         data: updatedData,
@@ -224,7 +210,7 @@ export class RoomService {
     });
   };
 
-  // ================= GET ROOMS (GENERAL) =================
+  /** ================= GET ROOMS (GENERAL) ================= */
   getRooms = async (query: GetRoomsQuery) => {
     const { take, page, sortBy, sortOrder, search } = query;
 
@@ -262,7 +248,7 @@ export class RoomService {
     return { data: rooms, meta: { page, take, total: count } };
   };
 
-  // ================= GET ROOMS (TENANT) =================
+  /** ================= GET ROOMS (TENANT) ================= */
   getRoomsTenant = async (query: GetRoomsQuery, userId: number) => {
     const { take, page, sortBy, sortOrder, search } = query;
 
@@ -314,7 +300,7 @@ export class RoomService {
     return { data: rooms, meta: { page, take, total: count } };
   };
 
-  // ================= GET ROOM BY ID =================
+  /** ================= GET ROOM BY ID ================= */
   getRoom = async (id: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, isDeleted: false },
@@ -327,13 +313,11 @@ export class RoomService {
       },
     });
 
-    if (!room) {
-      throw new ApiError("Invalid room id", 404);
-    }
+    if (!room) throw new ApiError("Invalid room id", 404);
     return room;
   };
 
-  // ================= DELETE ROOM =================
+  /** ================= DELETE ROOM ================= */
   deleteRoom = async (id: number, userId: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, NOT: { isDeleted: true } },
@@ -345,7 +329,7 @@ export class RoomService {
       throw new ApiError("You don't have permission to delete this room", 403);
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const currentDate = new Date();
 
       await Promise.all([
@@ -377,7 +361,7 @@ export class RoomService {
     });
   };
 
-  // ================= RESTORE ROOM =================
+  /** ================= RESTORE ROOM ================= */
   restoreRoom = async (id: number, userId: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, isDeleted: true },
@@ -389,7 +373,7 @@ export class RoomService {
       throw new ApiError("You don't have permission to restore this room", 403);
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const currentDate = new Date();
 
       await Promise.all([

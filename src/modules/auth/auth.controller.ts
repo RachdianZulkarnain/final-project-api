@@ -1,38 +1,18 @@
-import { NextFunction, Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service";
-import { LoginDTO } from "./dto/login.dto";
-import { RegisterDTO } from "./dto/register.dto";
-import { VerificationDTO } from "./dto/verification.dto";
-import { GoogleAuthDTO } from "./dto/googleAuth.dto";
-import { ForgotPasswordDto } from "./dto/forgot-password.dto";
-import { ResetPasswordDTO } from "./dto/reset-password.dto";
-import { ChangePasswordDTO } from "./dto/change-password.dto";
 import { ApiError } from "../../utils/api-error";
-import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
-interface AuthenticatedUser {
-  id: number;
-  role: string;
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: AuthenticatedUser;
-    }
-  }
-}
-
-@injectable()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private authService: AuthService;
+
+  constructor() {
+    this.authService = new AuthService();
+  }
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as LoginDTO;
-      const result = await this.authService.login(body);
-      res.status(200).send(result);
+      const result = await this.authService.login(req.body);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -40,9 +20,8 @@ export class AuthController {
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as RegisterDTO;
-      const result = await this.authService.register(body);
-      res.status(200).send(result);
+      const result = await this.authService.register(req.body);
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }
@@ -50,8 +29,7 @@ export class AuthController {
 
   registerTenant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as RegisterTenantDTO;
-      const result = await this.authService.registerTenant(body);
+      const result = await this.authService.registerTenant(req.body);
       res.status(201).json(result);
     } catch (error) {
       next(error);
@@ -64,18 +42,16 @@ export class AuthController {
     next: NextFunction
   ) => {
     try {
-      const authUser = req.user; // <-- pakai req.user, bukan res.locals.user
+      const authUser = req.user;
       if (!authUser || !authUser.id) {
         throw new ApiError("Unauthorized: User not found in token", 401);
       }
 
-      const body = req.body as VerificationDTO;
       const result = await this.authService.verifyEmailAndSetPassword(
-        body,
+        req.body,
         authUser.id
       );
-
-      res.status(200).send(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -83,9 +59,8 @@ export class AuthController {
 
   googleAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as GoogleAuthDTO;
-      const result = await this.authService.googleAuth(body);
-      res.status(200).send(result);
+      const result = await this.authService.googleAuth(req.body);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -93,9 +68,8 @@ export class AuthController {
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as ForgotPasswordDto;
-      const result = await this.authService.forgotPassword(body);
-      res.status(200).send(result);
+      const result = await this.authService.forgotPassword(req.body);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -103,13 +77,9 @@ export class AuthController {
 
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as ResetPasswordDTO;
-      const resetPasswordToken = req.query.token as string;
-      const result = await this.authService.resetPassword(
-        body,
-        resetPasswordToken
-      );
-      res.status(200).send(result);
+      const token = req.query.token as string;
+      const result = await this.authService.resetPassword(req.body, token);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -121,9 +91,8 @@ export class AuthController {
     next: NextFunction
   ) => {
     try {
-      const body = req.body as ForgotPasswordDto;
-      const result = await this.authService.resendEmailVerif(body);
-      res.status(200).send(result);
+      const result = await this.authService.resendEmailVerif(req.body);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -131,9 +100,9 @@ export class AuthController {
 
   verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authUserId = req.user!.id;
-      const result = await this.authService.verifyEmail(authUserId);
-      res.status(200).send(result);
+      if (!req.user) throw new ApiError("Unauthorized", 401);
+      const result = await this.authService.verifyEmail(req.user.id);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
@@ -141,12 +110,13 @@ export class AuthController {
 
   changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authUserId = req.user!.id;
-      const body = req.body as ChangePasswordDTO;
-
-      const updatedUser = await this.authService.changePassword(authUserId, body);
-      res.status(200).json(updatedUser);
-    } catch (error: any) {
+      if (!req.user) throw new ApiError("Unauthorized", 401);
+      const result = await this.authService.changePassword(
+        req.user.id,
+        req.body
+      );
+      res.status(200).json(result);
+    } catch (error) {
       next(error);
     }
   };

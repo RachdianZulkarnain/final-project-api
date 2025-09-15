@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString } from "class-validator";
 import { Transform } from "class-transformer";
-import { PaginationQueryParams } from "../../pagination/dto/pagination.dto";
 import { StatusPayment } from "../../../generated/prisma";
+import { PaginationQueryParams } from "../../pagination/pagination.dto";
 
 export class GetTenantPaymentsDto extends PaginationQueryParams {
   @IsOptional()

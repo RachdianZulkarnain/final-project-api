@@ -1,6 +1,4 @@
 import { OAuth2Client } from "google-auth-library";
-import { injectable } from "tsyringe";
-
 import { ApiError } from "../../utils/api-error";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
@@ -14,20 +12,23 @@ import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ChangePasswordDTO } from "./dto/change-password.dto";
 import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
-import { Role, Provider } from "../../generated/prisma"; // <-- penting
+import { Role, Provider } from "../../generated/prisma";
 import { env } from "../../config";
 import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
-@injectable()
 export class AuthService {
-  private readonly googleClient: OAuth2Client;
+  private prisma: PrismaService;
+  private passwordService: PasswordService;
+  private tokenService: TokenService;
+  private mailService: MailService;
+  private googleClient: OAuth2Client;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly passwordService: PasswordService,
-    private readonly tokenService: TokenService,
-    private readonly mailService: MailService
-  ) {
+  constructor() {
+    this.prisma = new PrismaService();
+    this.passwordService = new PasswordService();
+    this.tokenService = new TokenService();
+    this.mailService = new MailService();
+
     if (!process.env.GOOGLE_CLIENT_ID) {
       throw new Error("Missing GOOGLE_CLIENT_ID env variable");
     }
@@ -59,17 +60,15 @@ export class AuthService {
     return { ...userWithoutPassword, accessToken };
   };
 
-  /** REGISTER */
+  /** REGISTER USER */
   register = async (body: RegisterDTO) => {
     const { firstName, lastName, email } = body;
 
-    // Cek apakah email sudah ada
     const existingUser = await this.prisma.user.findFirst({
       where: { email, isDeleted: false },
     });
     if (existingUser) throw new ApiError("Email already exists", 400);
 
-    // Buat user baru, pastikan id dan email selalu di-select
     const newUser = await this.prisma.user.create({
       data: {
         firstName,
@@ -82,12 +81,11 @@ export class AuthService {
       },
       select: {
         ...prismaExclude("User", ["password"]),
-        id: true, // wajib untuk type-safe
-        email: true, // wajib untuk type-safe
+        id: true,
+        email: true,
       },
     });
 
-    // Generate token verifikasi
     const tokenPayload = { id: newUser.id, email: newUser.email };
     const emailVerificationToken = this.tokenService.generateToken(
       tokenPayload,
@@ -95,16 +93,13 @@ export class AuthService {
       { expiresIn: "15m" }
     );
 
-    // Link verifikasi
     const verificationLink = `${process.env.FRONTEND_URL}/sign-up/set-password?token=${emailVerificationToken}`;
 
-    // Kirim email
     await this.mailService.sendVerificationEmail(
-      newUser.email, // sudah pasti string
+      newUser.email,
       verificationLink
     );
 
-    // Update timestamp email dikirim
     await this.prisma.user.update({
       where: { id: newUser.id },
       data: { verificationSentAt: new Date() },
@@ -113,17 +108,15 @@ export class AuthService {
     return newUser;
   };
 
+  /** REGISTER TENANT */
   registerTenant = async (body: RegisterTenantDTO) => {
-    const { firstName, lastName, email, phone,} =
-      body;
+    const { firstName, lastName, email, phone } = body;
 
-    // Cek apakah email sudah ada
     const existingUser = await this.prisma.user.findFirst({
       where: { email, isDeleted: false },
     });
     if (existingUser) throw new ApiError("Email already exists", 400);
 
-    // Buat user baru dengan role TENANT
     const newUser = await this.prisma.user.create({
       data: {
         firstName,
@@ -142,17 +135,14 @@ export class AuthService {
       },
     });
 
-    // Buat record Tenant yang terkait
     const newTenant = await this.prisma.tenant.create({
       data: {
         userId: newUser.id,
         name: `${firstName} ${lastName}`,
         phone: phone || null,
-
       },
     });
 
-    // Generate token verifikasi email
     const tokenPayload = { id: newUser.id, email: newUser.email };
     const emailVerificationToken = this.tokenService.generateToken(
       tokenPayload,
@@ -162,13 +152,11 @@ export class AuthService {
 
     const verificationLink = `${process.env.FRONTEND_URL}/sign-up/set-password?token=${emailVerificationToken}`;
 
-    // Kirim email verifikasi
     await this.mailService.sendVerificationEmail(
       newUser.email,
       verificationLink
     );
 
-    // Update timestamp email dikirim
     await this.prisma.user.update({
       where: { id: newUser.id },
       data: { verificationSentAt: new Date() },
@@ -194,7 +182,7 @@ export class AuthService {
 
     const hashedPassword = await this.passwordService.hashPassword(password);
 
-    const updatedUser = await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id: authUserId },
       data: {
         password: hashedPassword,
@@ -213,8 +201,6 @@ export class AuthService {
         updatedAt: true,
       },
     });
-
-    return updatedUser;
   };
 
   /** GOOGLE AUTH */
@@ -274,32 +260,24 @@ export class AuthService {
       where: { email },
     });
 
-    if (!existingUser) {
-      throw new ApiError("Email is not registered", 400);
-    }
-
-    if (existingUser.provider === "GOOGLE") {
+    if (!existingUser) throw new ApiError("Email is not registered", 400);
+    if (existingUser.provider === Provider.GOOGLE) {
       throw new ApiError(
         "This account uses Google Sign-In. Please login using Google",
         400
       );
     }
 
-    const forgotPasswordPayload = {
-      userId: existingUser.id,
-      email: existingUser.email,
-    };
-
     const resetPasswordToken = this.tokenService.generateToken(
-      forgotPasswordPayload,
-      process.env.JWT_SECRET_RESET_PASSWORD as string,
+      { userId: existingUser.id, email: existingUser.email },
+      process.env.JWT_SECRET_RESET_PASSWORD!,
       { expiresIn: "15m" }
     );
 
     await this.prisma.user.update({
       where: { id: existingUser.id },
       data: {
-        resetPasswordToken: resetPasswordToken,
+        resetPasswordToken,
         resetPasswordTokenUsed: false,
       },
     });
@@ -324,6 +302,7 @@ export class AuthService {
     if (!user) throw new ApiError("Invalid or expired token", 400);
 
     const hashedPassword = await this.passwordService.hashPassword(newPassword);
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -339,22 +318,14 @@ export class AuthService {
   /** RESEND EMAIL VERIFICATION */
   resendEmailVerif = async (body: ForgotPasswordDto) => {
     const { email } = body;
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      throw new ApiError("User not found", 404);
-    }
+    if (!user) throw new ApiError("User not found", 404);
+    if (user.isVerified) throw new ApiError("User is already verified", 400);
 
-    if (user.isVerified) {
-      throw new ApiError("User is already verified", 400);
-    }
-
-    const verificationPayload = { id: user.id, email: user.email };
     const emailVerificationToken = this.tokenService.generateToken(
-      verificationPayload,
-      process.env.JWT_SECRET_VERIFICATION as string,
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET_VERIFICATION!,
       { expiresIn: "15m" }
     );
 
@@ -367,9 +338,7 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: {
-        verificationSentAt: new Date(),
-      },
+      data: { verificationSentAt: new Date() },
     });
 
     return { message: "Verification email sent successfully" };
@@ -385,15 +354,11 @@ export class AuthService {
       throw new ApiError("Invalid or already verified user/token", 400);
     }
 
-    const verifiedUser = await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id: authUserId },
-      data: {
-        isVerified: true,
-      },
+      data: { isVerified: true },
       select: prismaExclude("User", ["password"]),
     });
-
-    return verifiedUser;
   };
 
   /** CHANGE PASSWORD */
@@ -407,7 +372,6 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { id: authUserId },
     });
-
     if (!existingUser || !existingUser.password) {
       throw new ApiError("Invalid user", 400);
     }
@@ -416,22 +380,17 @@ export class AuthService {
       oldPassword,
       existingUser.password
     );
-
-    if (!isPasswordCorrect) {
-      throw new ApiError("Old password incorrect", 400);
-    }
+    if (!isPasswordCorrect) throw new ApiError("Old password incorrect", 400);
 
     const isSamePassword = await this.passwordService.comparePassword(
       newPassword,
       existingUser.password
     );
-
-    if (isSamePassword) {
+    if (isSamePassword)
       throw new ApiError(
         "New password must be different from old password",
         400
       );
-    }
 
     const hashedNewPassword = await this.passwordService.hashPassword(
       newPassword
