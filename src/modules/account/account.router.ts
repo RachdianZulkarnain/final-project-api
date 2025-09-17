@@ -48,19 +48,18 @@ export class AccountRouter {
       this.accountController.changePassword
     );
 
-    // // VERIFY CHANGE EMAIL
-    // this.router.post(
-    //   "/verify-change-email",
-    //   this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
-    //   this.accountController.verifyChangeEmail
-    // );
+    // VERIFY CHANGE EMAIL
+    this.router.post(
+      "/verify-change-email",
+      this.accountController.verifyChangeEmail
+    );
 
-    // // CHANGE EMAIL
-    // this.router.post(
-    //   "/change-email",
-    //   this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
-    //   this.accountController.changeEmail
-    // );
+    // CHANGE EMAIL
+    this.router.post(
+      "/change-email",
+      this.jwtMiddleware.verifyToken(process.env.JWT_SECRET!),
+      this.accountController.changeEmail
+    );
 
     // UPDATE TENANT PROFILE
     this.router.patch(

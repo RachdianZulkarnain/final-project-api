@@ -91,40 +91,40 @@ export class AccountController {
     }
   };
 
-  // /** CHANGE EMAIL */
-  // changeEmail = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const userId = Number(res.locals.user?.id);
-  //     if (!userId) throw new ApiError("Unauthorized: User not found", 401);
+  /** CHANGE EMAIL */
+  changeEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = Number(res.locals.user?.id);
+      if (!userId) throw new ApiError("Unauthorized: User not found", 401);
 
-  //     const { email } = req.body;
-  //     if (!email) throw new ApiError("Email is required", 400);
+      const { email } = req.body;
+      if (!email) throw new ApiError("Email is required", 400);
 
-  //     const result = await this.accountService.changeEmail(userId, email);
-  //     res.status(200).json(result);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+      const result = await this.accountService.changeEmail(userId, email);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-  // /** VERIFY CHANGE EMAIL */
-  // verifyChangeEmail = async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ) => {
-  //   try {
-  //     const { token, password } = req.body;
-  //     if (!token) throw new ApiError("Token is required", 400);
-  //     if (!password) throw new ApiError("Password is required", 400);
+  /** VERIFY CHANGE EMAIL */
+  verifyChangeEmail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { token, password } = req.body;
+      if (!token) throw new ApiError("Token is required", 400);
+      if (!password) throw new ApiError("Password is required", 400);
 
-  //     const result = await this.accountService.verifyChangeEmail({
-  //       token,
-  //       password,
-  //     });
-  //     res.status(200).json(result);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+      const result = await this.accountService.verifyChangeEmail({
+        token,
+        password,
+      });
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

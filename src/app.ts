@@ -2,7 +2,6 @@ import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import "reflect-metadata";
-import { PORT } from "./config/env";
 import "reflect-metadata";
 import { PORT } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -17,10 +16,7 @@ import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.rout
 import { RoomNonAvailabilityRouter } from "./modules/room-non-availability/roomNonAvailability.router";
 import { PaymentRouter } from "./modules/payment/payment.router";
 import { CalendarRouter } from "./modules/calender/calender.router";
-import { CalendarRouter } from "./modules/calender/calender.router";
 
-export class App {
-  private app: Express;
 export class App {
   private app: Express;
 
@@ -31,7 +27,6 @@ export class App {
     this.handleError();
   }
 
-  private configure() {
   private configure() {
     this.app.use(helmet());
     this.app.use(cors());
