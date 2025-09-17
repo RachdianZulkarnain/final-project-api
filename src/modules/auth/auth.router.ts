@@ -64,7 +64,6 @@ export class AuthRouter {
 
     this.router.post(
       "/reset-password",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET_RESET_PASSWORD),
       validateBody(ResetPasswordDTO),
       this.authController.resetPassword
     );

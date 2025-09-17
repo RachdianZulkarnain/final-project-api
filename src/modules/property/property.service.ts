@@ -759,4 +759,11 @@ export class PropertyService {
       throw error;
     }
   };
+
+  // ================= GET TENANT BY USER ID =================
+  getTenantByUserId = async (userId: number) => {
+    return this.prisma.tenant.findFirst({
+      where: { userId, isDeleted: false },
+    });
+  };
 }

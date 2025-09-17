@@ -146,12 +146,15 @@ export class PropertyController {
         search: req.query.search || "",
       };
 
-      const tenantId = Number(res.locals.user.id);
-      if (!tenantId) throw new Error("Tenant ID not found in token");
+      const userId = Number(res.locals.user.id);
+
+      // ✅ pakai service helper
+      const tenant = await this.propertyService.getTenantByUserId(userId);
+      if (!tenant) throw new Error("Tenant not found for this user");
 
       const result = await this.propertyService.getTenantProperties(
         query,
-        tenantId
+        tenant.id
       );
 
       res.status(200).json({

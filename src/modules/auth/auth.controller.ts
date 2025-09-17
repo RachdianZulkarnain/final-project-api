@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service";
 import { ApiError } from "../../utils/api-error";
+import { ResetPasswordDTO } from "./dto/reset-password.dto";
 
 export class AuthController {
   private authService: AuthService;
@@ -77,8 +78,14 @@ export class AuthController {
 
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.query.token as string;
-      const result = await this.authService.resetPassword(req.body, token);
+      // Ambil token dari query parameter
+      const resetPasswordToken = req.query.token as string;
+
+      const result = await this.authService.resetPassword(
+        req.body as ResetPasswordDTO,
+        resetPasswordToken
+      );
+
       res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -100,8 +107,10 @@ export class AuthController {
 
   verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user) throw new ApiError("Unauthorized", 401);
-      const result = await this.authService.verifyEmail(req.user.id);
+      const user = (req as any).user;
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      const result = await this.authService.verifyEmail(user.id);
       res.status(200).json(result);
     } catch (error) {
       next(error);

@@ -15,4 +15,12 @@ export class RegisterTenantDTO {
   @IsOptional()
   @IsString()
   phone!: string;
+
+  @IsOptional()
+  @IsString()
+  bankName!: string;
+
+  @IsOptional()
+  @IsString()
+  bankNumber!: string;
 }
