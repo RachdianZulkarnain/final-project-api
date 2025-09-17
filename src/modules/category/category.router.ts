@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { CategoryController } from "./category.controller";
+import { env } from "../../config";
 import { isTenant } from "../../lib/isTenant";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
-import { env } from "../../config";
+import { CategoryController } from "./category.controller";
 import { CategoryService } from "./category.service";
 
 export class CategoryRouter {

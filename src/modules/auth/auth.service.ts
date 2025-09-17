@@ -1,20 +1,20 @@
 import { OAuth2Client } from "google-auth-library";
+import { env } from "../../config";
+import { Provider, Role } from "../../generated/prisma";
 import { ApiError } from "../../utils/api-error";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { prismaExclude } from "../prisma/utils";
+import { ChangePasswordDTO } from "./dto/change-password.dto";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { GoogleAuthDTO } from "./dto/googleAuth.dto";
 import { LoginDTO } from "./dto/login.dto";
-import { VerificationDTO } from "./dto/verification.dto";
-import { ResetPasswordDTO } from "./dto/reset-password.dto";
 import { RegisterDTO } from "./dto/register.dto";
-import { ForgotPasswordDto } from "./dto/forgot-password.dto";
-import { ChangePasswordDTO } from "./dto/change-password.dto";
+import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
+import { ResetPasswordDTO } from "./dto/reset-password.dto";
+import { VerificationDTO } from "./dto/verification.dto";
 import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
-import { Role, Provider } from "../../generated/prisma";
-import { env } from "../../config";
-import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
 
 export class AuthService {
   private prisma: PrismaService;

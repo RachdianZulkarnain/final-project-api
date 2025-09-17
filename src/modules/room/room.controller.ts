@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { RoomService, GetRoomsQuery } from "./room.service";
+import { NextFunction, Request, Response } from "express";
+import { GetRoomsQuery, RoomService } from "./room.service";
 
 export class RoomController {
   private roomService: RoomService;

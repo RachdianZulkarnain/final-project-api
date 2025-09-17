@@ -1,9 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
-  CreateRoomNonAvailabilityBody,
   GetRoomNonAvailabilitiesQuery,
-  UpdateRoomNonAvailabilityBody,
   RoomNonAvailabilityService,
+  UpdateRoomNonAvailabilityBody
 } from "./roomNonAvailability.service";
 
 export class RoomNonAvailabilityController {
@@ -20,8 +19,7 @@ export class RoomNonAvailabilityController {
   ) => {
     try {
       const userId = Number(res.locals.user.id);
-
-      const payload: CreateRoomNonAvailabilityBody = {
+      const payload = {
         reason: req.body.reason,
         startDate: new Date(req.body.startDate),
         endDate: new Date(req.body.endDate),
@@ -34,7 +32,7 @@ export class RoomNonAvailabilityController {
           payload
         );
 
-      res.status(200).json(result);
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }

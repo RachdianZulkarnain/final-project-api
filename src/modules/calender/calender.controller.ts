@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { CalendarService } from "./calender.service";
 
 export class CalendarController {
@@ -30,8 +30,6 @@ export class CalendarController {
           });
         }
       }
-
-      // Set ke awal bulan
       parsedDate.setDate(1);
       parsedDate.setHours(0, 0, 0, 0);
 

@@ -1,6 +1,6 @@
-import { PrismaService } from "../prisma/prisma.service";
-import { ApiError } from "../../utils/api-error";
 import { Prisma, PropertyCategory, Role } from "../../generated/prisma";
+import { ApiError } from "../../utils/api-error";
+import { PrismaService } from "../prisma/prisma.service";
 
 interface CreateCategoryBody {
   name: string;

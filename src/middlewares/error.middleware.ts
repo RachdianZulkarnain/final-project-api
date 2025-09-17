@@ -8,7 +8,6 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction
 ) {
-  // Tangani error Prisma
   if (err instanceof PrismaClientKnownRequestError) {
     switch (err.code) {
       case "P2002":
@@ -37,7 +36,6 @@ export function errorMiddleware(
     }
   }
 
-  // Tangani error custom ApiError
   const status = (err as ApiError).status || 500;
   const message = (err as ApiError).message || "Something went wrong";
   return res.status(status).json({ message });

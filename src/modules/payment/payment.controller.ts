@@ -1,8 +1,8 @@
+import { plainToInstance } from "class-transformer";
 import { Request, Response } from "express";
-import { PaymentService } from "./payment.service";
 import { ApiError } from "../../utils/api-error";
 import { GetTenantPaymentsDto } from "./dto/get-payments.dto";
-import { plainToInstance } from "class-transformer";
+import { PaymentService } from "./payment.service";
 
 export class PaymentController {
   private paymentService = new PaymentService();
@@ -41,6 +41,4 @@ export class PaymentController {
 
     res.status(200).send(result);
   };
-
-  
 }

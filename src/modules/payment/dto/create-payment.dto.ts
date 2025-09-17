@@ -1,17 +1,17 @@
 import {
-  IsInt,
-  IsPositive,
-  IsOptional,
+  IsDateString,
   IsEnum,
+  IsInt,
+  IsOptional,
+  IsPositive,
   IsString,
   IsUrl,
-  IsDateString,
   Min,
-} from 'class-validator';
+} from "class-validator";
 
 export enum PaymentMethode {
-  MANUAL = 'MANUAL',
-  OTOMATIS = 'OTOMATIS',
+  MANUAL = "MANUAL",
+  OTOMATIS = "OTOMATIS",
 }
 
 export class CreatePaymentDto {

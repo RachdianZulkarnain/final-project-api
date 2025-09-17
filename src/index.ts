@@ -1,7 +1,7 @@
-import "reflect-metadata";
 import { config } from "dotenv";
-config(); // HARUS dipanggil sebelum env() atau tsyringe
+import "reflect-metadata";
 import { App } from "./app";
+config();
 
 process.setMaxListeners(0);
 

@@ -1,7 +1,7 @@
-import { Prisma } from "../../generated/prisma";
-import { PrismaService } from "../prisma/prisma.service";
-import { ApiError } from "../../utils/api-error";
 import { areIntervalsOverlapping } from "date-fns";
+import { Prisma } from "../../generated/prisma";
+import { ApiError } from "../../utils/api-error";
+import { PrismaService } from "../prisma/prisma.service";
 
 export interface CreateRoomNonAvailabilityBody {
   reason: string;
@@ -39,7 +39,12 @@ export class RoomNonAvailabilityService {
   /** CREATE ROOM NON AVAILABILITY */
   createRoomNonAvailability = async (
     userId: number,
-    body: CreateRoomNonAvailabilityBody
+    body: {
+      reason: string;
+      startDate: Date;
+      endDate: Date;
+      roomId: number;
+    }
   ) => {
     const { reason, startDate, endDate, roomId } = body;
 
@@ -48,17 +53,18 @@ export class RoomNonAvailabilityService {
 
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
-      include: { property: true },
+      include: { property: { include: { tenant: true } } }, // fix include tenant
     });
     if (!room) throw new ApiError("Room not found", 404);
 
-    if (room.property.tenantId !== userId) {
+    if (room.property.tenant.userId !== userId) {
       throw new ApiError(
         "You don't have permission to create non-availability",
         403
       );
     }
 
+    // Cek overlap
     const existingNonAvailabilities =
       await this.prisma.roomNonAvailability.findMany({ where: { roomId } });
 
@@ -79,23 +85,19 @@ export class RoomNonAvailabilityService {
       }
     }
 
-    return await this.prisma.$transaction(
-      async (tx: Prisma.TransactionClient) => {
-        const newNonAvailability = await tx.roomNonAvailability.create({
-          data: {
-            reason,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            roomId,
-          },
-        });
+    const newNonAvailability = await this.prisma.roomNonAvailability.create({
+      data: {
+        reason,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        roomId,
+      },
+    });
 
-        return {
-          message: "Create Room Non Availability success",
-          data: newNonAvailability,
-        };
-      }
-    );
+    return {
+      message: "Create Room Non Availability success",
+      data: newNonAvailability,
+    };
   };
 
   /** GET ROOM NON AVAILABILITIES */

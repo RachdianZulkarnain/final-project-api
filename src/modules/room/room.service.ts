@@ -1,7 +1,7 @@
 import { Prisma } from "../../generated/prisma";
 import { ApiError } from "../../utils/api-error";
-import { PrismaService } from "../prisma/prisma.service";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
+import { PrismaService } from "../prisma/prisma.service";
 
 interface RoomFacility {
   id?: number;
@@ -53,7 +53,7 @@ export class RoomService {
   createRoom = async (
     body: CreateRoomBody,
     file: Express.Multer.File,
-    userId: number // <-- ini user.id dari JWT
+    userId: number // 
   ) => {
     const { type, name, stock, price, guest, propertyId, facilities } = body;
 
@@ -61,14 +61,12 @@ export class RoomService {
     const priceRoom = Number(price);
     const guestRoom = Number(guest);
 
-    // ✅ Ambil tenantId berdasarkan userId
     const tenant = await this.prisma.tenant.findUnique({
       where: { userId },
     });
 
     if (!tenant) throw new ApiError("Tenant not found for this user", 404);
 
-    // ✅ Pastikan property benar-benar milik tenant ini
     const property = await this.prisma.property.findFirst({
       where: { id: Number(propertyId), tenantId: tenant.id },
     });
@@ -80,19 +78,16 @@ export class RoomService {
       );
     }
 
-    // ✅ Validasi fasilitas
     if (!facilities || !Array.isArray(facilities) || facilities.length === 0) {
       throw new ApiError("At least one facility must be provided", 400);
     }
 
-    // ✅ Upload gambar jika ada
     let secureUrl: string | undefined;
     if (file) {
       const uploadResult = await this.cloudinaryService.upload(file, "rooms");
       secureUrl = uploadResult.secure_url;
     }
 
-    // ✅ Simpan room + relasi
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const newRoom = await tx.room.create({
         data: {

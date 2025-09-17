@@ -1,21 +1,20 @@
-import express, { Express } from "express";
 import cors from "cors";
+import express, { Express } from "express";
 import helmet from "helmet";
-import "reflect-metadata";
 import "reflect-metadata";
 import { PORT } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
-import { AuthRouter } from "./modules/auth/auth.router";
 import { AccountRouter } from "./modules/account/account.router";
+import { AuthRouter } from "./modules/auth/auth.router";
+import { CalendarRouter } from "./modules/calender/calender.router";
+import { CategoryRouter } from "./modules/category/category.router";
+import { PaymentRouter } from "./modules/payment/payment.router";
+import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.router";
 import { UserRouter } from "./modules/profile/profile.router";
 import { PropertyRouter } from "./modules/property/property.router";
-import { CategoryRouter } from "./modules/category/category.router";
-import { RoomRouter } from "./modules/room/room.router";
-import { PeakSeasonRouter } from "./modules/peak-season-rate/peakSeasonRate.router";
 import { RoomNonAvailabilityRouter } from "./modules/room-non-availability/roomNonAvailability.router";
-import { PaymentRouter } from "./modules/payment/payment.router";
-import { CalendarRouter } from "./modules/calender/calender.router";
+import { RoomRouter } from "./modules/room/room.router";
 
 export class App {
   private app: Express;

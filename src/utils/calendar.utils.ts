@@ -6,7 +6,7 @@ export function generateCalendarData(
   basePrice: number,
   baseStock: number,
   peakSeasonRates: any[],
-  nonAvailabilities: any[],
+  nonAvailabilities: any[]
 ): CalendarData {
   const calendar: CalendarData = {};
   const currentDate = new Date(startDate);
@@ -26,9 +26,7 @@ export function generateCalendarData(
         new Date(period.endDate) >= currentDate
     );
 
-
-
-    const availableStock = Math.max(0, baseStock );
+    const availableStock = Math.max(0, baseStock);
 
     calendar[dateKey] = {
       date: new Date(currentDate),
@@ -39,7 +37,6 @@ export function generateCalendarData(
       totalStock: baseStock,
     };
 
-    // Move to the next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
 

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { UserController } from "./profile.controller";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
+import { fileFilter, uploader } from "../../middlewares/uploader.middleware";
 import { validateBody } from "../../middlewares/validate.middleware";
 import { UpdateUserDTO } from "./dto/updateUser.dto";
-import { uploader, fileFilter } from "../../middlewares/uploader.middleware";
+import { UserController } from "./profile.controller";
 
 export class UserRouter {
   private router: Router;

@@ -1,5 +1,4 @@
-// src/controllers/account.controller.ts
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utils/api-error";
 import { AccountService } from "./account.service";
 

@@ -1,11 +1,10 @@
 // src/modules/property/property.service.ts
 import { injectable } from "tsyringe";
+import { Prisma, Property, Role, StatusProperty } from "../../generated/prisma";
+import { PaginationQueryParams } from "../../types/pagination";
+import { ApiError } from "../../utils/api-error";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { ApiError } from "../../utils/api-error";
-import { Property, Role, StatusProperty } from "../../generated/prisma";
-import { Prisma } from "../../generated/prisma";
-import { PaginationQueryParams } from "../../types/pagination";
 
 interface CreatePropertyBody {
   title: string;

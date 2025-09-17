@@ -1,6 +1,5 @@
-import * as streamifier from "streamifier";
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
-
+import * as streamifier from "streamifier";
 
 cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -13,7 +12,6 @@ export const cloudinaryUpload = (
 ): Promise<UploadApiResponse> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-
       (error: any, result: UploadApiResponse) => {
         if (error) {
           return reject(error);

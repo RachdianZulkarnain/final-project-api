@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { AuthService } from "./auth.service";
+import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utils/api-error";
+import { AuthService } from "./auth.service";
 import { ResetPasswordDTO } from "./dto/reset-password.dto";
 
 export class AuthController {
