@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { AuthController } from "./auth.controller";
+import { env } from "../../config";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { validateBody } from "../../middlewares/validate.middleware";
+import { AuthController } from "./auth.controller";
+import { ChangePasswordDTO } from "./dto/change-password.dto";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { GoogleAuthDTO } from "./dto/googleAuth.dto";
 import { LoginDTO } from "./dto/login.dto";
 import { RegisterDTO } from "./dto/register.dto";
 import { RegisterTenantDTO } from "./dto/RegisterTenant.dto";
-import { VerificationDTO } from "./dto/verification.dto";
-import { GoogleAuthDTO } from "./dto/googleAuth.dto";
-import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ResetPasswordDTO } from "./dto/reset-password.dto";
-import { ChangePasswordDTO } from "./dto/change-password.dto";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
-import { env } from "../../config";
+import { VerificationDTO } from "./dto/verification.dto";
 
 export class AuthRouter {
   private router: Router;

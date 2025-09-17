@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { UploaderMiddleware } from "../../middlewares/upload.middleware";
-import { PaymentController } from "./payment.controller";
 import { validateBody } from "../../middlewares/validate.middleware";
 import { UpdatePaymentDTO } from "./dto/update-payments.dto";
+import { PaymentController } from "./payment.controller";
 
 export class PaymentRouter {
   private router: Router;

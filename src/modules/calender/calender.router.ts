@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { CalendarController } from "./calender.controller";
 
 export class CalendarRouter {

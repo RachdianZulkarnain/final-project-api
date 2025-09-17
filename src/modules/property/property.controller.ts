@@ -1,8 +1,8 @@
 // src/modules/property/property.controller.ts
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { injectable } from "tsyringe";
-import { PropertyService } from "./property.service";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
+import { PropertyService } from "./property.service";
 
 @injectable()
 export class PropertyController {

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Response } from "express";
 
 export const isTenant = (req: any, res: Response, next: NextFunction) => {
-  const user = req.user; // <- ambil dari req.user, bukan res.locals
+  const user = req.user;
 
   if (user && user.role === "TENANT") {
     return next();

@@ -1,9 +1,9 @@
 // src/modules/payments/payment.worker.ts
 
-import { Job, Worker } from 'bullmq';
-import { connection } from '../../config/redis';
-import { PrismaService } from '../prisma/prisma.service';
-import { ApiError } from '../../utils/api-error';
+import { Job, Worker } from "bullmq";
+import { connection } from "../../config/redis";
+import { ApiError } from "../../utils/api-error";
+import { PrismaService } from "../prisma/prisma.service";
 
 export class PaymentWorker {
   private worker: Worker;
@@ -12,7 +12,7 @@ export class PaymentWorker {
   constructor() {
     this.prisma = new PrismaService();
 
-    this.worker = new Worker('paymentQueue', this.handlePayment, {
+    this.worker = new Worker("paymentQueue", this.handlePayment, {
       connection,
     });
   }
@@ -25,7 +25,7 @@ export class PaymentWorker {
     });
 
     if (!payment) {
-      throw new ApiError('Invalid payment UUID', 400);
+      throw new ApiError("Invalid payment UUID", 400);
     }
 
     if (payment.status === "WAITING_FOR_PAYMENT") {

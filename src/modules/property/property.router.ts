@@ -1,11 +1,11 @@
 // src/modules/property/property.router.ts
 import { Router } from "express";
 import { autoInjectable } from "tsyringe";
-import { PropertyController } from "./property.controller";
-import { uploader } from "../../lib/multer";
-import { isTenant } from "../../lib/isTenant";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
+import { isTenant } from "../../lib/isTenant";
+import { uploader } from "../../lib/multer";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
+import { PropertyController } from "./property.controller";
 
 @autoInjectable()
 export class PropertyRouter {

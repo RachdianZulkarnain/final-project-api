@@ -1,8 +1,8 @@
 // account.router.ts
 import { Router } from "express";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { uploader } from "../../lib/multer";
 import { fileFilterProfile } from "../../lib/profilePictureFilter";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { AccountController } from "./account.controller";
 
 export class AccountRouter {

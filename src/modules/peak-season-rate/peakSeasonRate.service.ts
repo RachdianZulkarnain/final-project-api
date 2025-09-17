@@ -1,7 +1,7 @@
-import { PrismaService } from "../prisma/prisma.service";
-import { ApiError } from "../../utils/api-error";
-import { Prisma, Role } from "../../generated/prisma";
 import { areIntervalsOverlapping } from "date-fns";
+import { Prisma, Role } from "../../generated/prisma";
+import { ApiError } from "../../utils/api-error";
+import { PrismaService } from "../prisma/prisma.service";
 
 interface CreatePeakSeasonBody {
   price: number;

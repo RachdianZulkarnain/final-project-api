@@ -1,13 +1,13 @@
 import { injectable } from "tsyringe";
+import { Prisma } from "../../generated/prisma";
+import { ApiError } from "../../utils/api-error";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
-import { PaymentQueue } from "./payment.queue";
-import { ApiError } from "../../utils/api-error";
-import { UpdatePaymentDTO } from "./dto/update-payments.dto";
 import { GetTenantPaymentsDto } from "./dto/get-payments.dto";
-import { Prisma } from "../../generated/prisma";
+import { UpdatePaymentDTO } from "./dto/update-payments.dto";
+import { PaymentQueue } from "./payment.queue";
 
 @injectable()
 export class PaymentService {

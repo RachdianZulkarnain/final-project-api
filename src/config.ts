@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { validateSync, IsNotEmpty, IsString, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, validateSync } from "class-validator";
 
 class EnvConfig {
   @IsNotEmpty() @IsNumber() PORT!: number;
@@ -19,7 +19,6 @@ class EnvConfig {
 
   @IsNotEmpty() @IsString() GOOGLE_CLIENT_ID!: string;
   @IsNotEmpty() @IsString() GOOGLE_CLIENT_SECRET!: string;
-  
 }
 
 export const env = () => {

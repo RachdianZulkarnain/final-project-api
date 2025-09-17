@@ -1,11 +1,11 @@
-import { PrismaService } from "../prisma/prisma.service";
+import { CalendarData, RoomPriceComparison } from "../../types/calendar";
 import { ApiError } from "../../utils/api-error";
-import { RoomPriceComparison, CalendarData } from "../../types/calendar";
 import {
-  getDailyPrices,
   calculateAveragePrice,
   generateCalendarData,
+  getDailyPrices,
 } from "../../utils/calendar.utils";
+import { PrismaService } from "../prisma/prisma.service";
 
 export class CalendarService {
   private prisma: PrismaService;

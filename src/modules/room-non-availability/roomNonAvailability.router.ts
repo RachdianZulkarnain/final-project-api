@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { RoomNonAvailabilityController } from "./roomNonAvailability.controller";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
 import { isTenant } from "../../lib/isTenant";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
+import { RoomNonAvailabilityController } from "./roomNonAvailability.controller";
 
 export class RoomNonAvailabilityRouter {
   private router: Router;
@@ -27,7 +27,7 @@ export class RoomNonAvailabilityRouter {
 
     // ================= CREATE ROOM NON AVAILABILITY =================
     this.router.post(
-      "/room",
+      "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       isTenant,
       this.roomNonAvailabilityController.createRoomNonAvailability

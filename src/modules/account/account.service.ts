@@ -1,17 +1,12 @@
 // src/services/account/account.service.ts
-import { ApiError } from "../../utils/api-error";
-import { PrismaService } from "../prisma/prisma.service";
-import { MailService } from "../mail/mail.service";
-import { hashPassword, comparePassword } from "../../lib/argon";
-import { cloudinaryUpload, cloudinaryRemove } from "../../lib/cloudinary";
 import jwt from "jsonwebtoken";
-import path from "path";
-import fs from "fs";
-import handlebars from "handlebars";
-import { Role } from "../../generated/prisma";
 import { env } from "../../config";
+import { cloudinaryRemove, cloudinaryUpload } from "../../lib/cloudinary";
+import { ApiError } from "../../utils/api-error";
 import { PasswordService } from "../auth/password.service";
 import { TokenService } from "../auth/token.service";
+import { MailService } from "../mail/mail.service";
+import { PrismaService } from "../prisma/prisma.service";
 
 interface ChangePasswordBody {
   password: string;

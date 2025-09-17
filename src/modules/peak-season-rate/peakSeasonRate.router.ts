@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { PeakSeasonController } from "./peakSeasonRate.controller";
-import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { env } from "../../config";
 import { isTenant } from "../../lib/isTenant";
+import { JwtMiddleware } from "../../middlewares/jwt.middleware";
+import { PeakSeasonController } from "./peakSeasonRate.controller";
 
 export class PeakSeasonRouter {
   private router: Router;

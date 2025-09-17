@@ -1,9 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
-import { RoomController } from "./room.controller";
+import { env } from "../../config";
 import { isTenant } from "../../lib/isTenant";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
-import { env } from "../../config";
+import { RoomController } from "./room.controller";
 
 export class RoomRouter {
   private router: Router;
