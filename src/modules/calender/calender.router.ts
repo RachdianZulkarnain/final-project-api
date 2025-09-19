@@ -16,21 +16,18 @@ export class CalendarRouter {
   }
 
   private initializeRoutes = (): void => {
-    // ================= GET MONTHLY CALENDAR =================
     this.router.get(
       "/room/:roomId",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       this.calendarController.getMonthlyCalendar
     );
 
-    // ================= COMPARE ROOM PRICING =================
     this.router.post(
       "/compare",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       this.calendarController.compareRoomPricing
     );
 
-    // ================= GET PROPERTY MONTHLY PRICE COMPARISON =================
     this.router.get(
       "/property/:propertyId",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),

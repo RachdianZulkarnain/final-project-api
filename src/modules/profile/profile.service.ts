@@ -9,7 +9,6 @@ export class UserService {
     this.prisma = new PrismaService();
   }
 
-  /** GET USER */
   getUser = async (authUserId: number) => {
     const user = await this.prisma.user.findUnique({
       where: { id: authUserId },
@@ -23,7 +22,6 @@ export class UserService {
     return userWithoutPassword;
   };
 
-  /** UPDATE USER */
   updateUser = async (authUserId: number, body: UpdateUserDTO) => {
     const { firstName, lastName, email } = body;
 
@@ -50,7 +48,6 @@ export class UserService {
     return updatedUserWithoutPassword;
   };
 
-  /** UPLOAD PROFILE PICTURE */
   uploadProfilePic = async (authUserId: number, uploadPath: string) => {
     const user = await this.prisma.user.findUnique({
       where: { id: authUserId },

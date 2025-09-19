@@ -20,14 +20,12 @@ export class RoomRouter {
   private initializeRoutes = (): void => {
     const upload = multer({ storage: multer.memoryStorage() });
 
-    // ================= GET ROOMS (GENERAL) =================
     this.router.get(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
       this.roomController.getRooms
     );
 
-    // ================= GET ROOMS (TENANT) =================
     this.router.get(
       "/tenant",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -35,7 +33,6 @@ export class RoomRouter {
       this.roomController.getRoomsTenant
     );
 
-    // ================= CREATE ROOM =================
     this.router.post(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -44,7 +41,6 @@ export class RoomRouter {
       this.roomController.createRoom
     );
 
-    // ================= GET ROOM BY ID =================
     this.router.get(
       "/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -52,7 +48,6 @@ export class RoomRouter {
       this.roomController.getRoom
     );
 
-    // ================= DELETE ROOM =================
     this.router.delete(
       "/room/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -60,7 +55,6 @@ export class RoomRouter {
       this.roomController.deleteRoom
     );
 
-    // ================= UPDATE ROOM =================
     this.router.patch(
       "/room/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),

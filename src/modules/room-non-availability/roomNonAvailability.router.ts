@@ -17,7 +17,6 @@ export class RoomNonAvailabilityRouter {
   }
 
   private initializeRoutes = (): void => {
-    // ================= GET ROOM NON AVAILABILITIES =================
     this.router.get(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -25,7 +24,6 @@ export class RoomNonAvailabilityRouter {
       this.roomNonAvailabilityController.getRoomNonAvailabilities
     );
 
-    // ================= CREATE ROOM NON AVAILABILITY =================
     this.router.post(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -33,7 +31,6 @@ export class RoomNonAvailabilityRouter {
       this.roomNonAvailabilityController.createRoomNonAvailability
     );
 
-    // ================= UPDATE ROOM NON AVAILABILITY =================
     this.router.patch(
       "/room/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -41,7 +38,6 @@ export class RoomNonAvailabilityRouter {
       this.roomNonAvailabilityController.updateRoomNonAvailability
     );
 
-    // ================= DELETE ROOM NON AVAILABILITY =================
     this.router.delete(
       "/room/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),

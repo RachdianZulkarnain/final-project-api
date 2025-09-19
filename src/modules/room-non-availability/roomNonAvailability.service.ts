@@ -36,7 +36,6 @@ export class RoomNonAvailabilityService {
     this.prisma = new PrismaService();
   }
 
-  /** CREATE ROOM NON AVAILABILITY */
   createRoomNonAvailability = async (
     userId: number,
     body: {
@@ -53,7 +52,7 @@ export class RoomNonAvailabilityService {
 
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
-      include: { property: { include: { tenant: true } } }, // fix include tenant
+      include: { property: { include: { tenant: true } } },
     });
     if (!room) throw new ApiError("Room not found", 404);
 
@@ -64,7 +63,6 @@ export class RoomNonAvailabilityService {
       );
     }
 
-    // Cek overlap
     const existingNonAvailabilities =
       await this.prisma.roomNonAvailability.findMany({ where: { roomId } });
 
@@ -100,7 +98,6 @@ export class RoomNonAvailabilityService {
     };
   };
 
-  /** GET ROOM NON AVAILABILITIES */
   getRoomNonAvailabilities = async (
     query: GetRoomNonAvailabilitiesQuery,
     userId: number
@@ -155,7 +152,6 @@ export class RoomNonAvailabilityService {
     return { data: roomNonAvailabilities, meta: { page, take, total: count } };
   };
 
-  /** UPDATE ROOM NON AVAILABILITY */
   updateRoomNonAvailability = async (
     id: number,
     body: Partial<UpdateRoomNonAvailabilityBody>
@@ -203,7 +199,6 @@ export class RoomNonAvailabilityService {
     };
   };
 
-  /** DELETE ROOM NON AVAILABILITY */
   deleteRoomNonAvailability = async (id: number) => {
     const existingRecord = await this.prisma.roomNonAvailability.findUnique({
       where: { id },

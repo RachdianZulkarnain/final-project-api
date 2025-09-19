@@ -42,14 +42,14 @@ export class AuthService {
     const existingUser = await this.prisma.user.findFirst({
       where: { email, isDeleted: false },
     });
-    if (!existingUser) throw new ApiError("User not found", 404);
+    if (!existingUser) throw new ApiError("Invalid Credentials", 404);
     if (!existingUser.password) throw new ApiError("User is not verified", 400);
 
     const isPasswordValid = await this.passwordService.comparePassword(
       password,
       existingUser.password
     );
-    if (!isPasswordValid) throw new ApiError("Incorrect password", 400);
+    if (!isPasswordValid) throw new ApiError("Invalid Credentials", 400);
 
     const accessToken = this.tokenService.generateToken(
       { id: existingUser.id, role: existingUser.role },

@@ -54,7 +54,6 @@ export class PropertyService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  // ================= CREATE PROPERTY =================
   createProperty = async (
     body: CreatePropertyBody,
     files: Express.Multer.File[],
@@ -146,7 +145,6 @@ export class PropertyService {
     return property;
   };
 
-  // ================= UPDATE PROPERTY =================
   updateProperty = async (
     userId: number,
     propertyId: number,
@@ -257,7 +255,6 @@ export class PropertyService {
     });
   };
 
-  // ================= GET PROPERTIES BY QUERY (PUBLIC) =================
   getPropertiesByQuery = async (query: GetPropertiesQuery) => {
     try {
       const {
@@ -372,7 +369,6 @@ export class PropertyService {
     }
   };
 
-  // ================= GET TENANT PROPERTIES =================
   getTenantProperties = async (query: any, tenantId: number) => {
     const { page = 1, take = 10, search } = query;
     const skip = (page - 1) * take;
@@ -411,7 +407,6 @@ export class PropertyService {
     }
   };
 
-  // ================= GET PROPERTY DETAIL (TENANT) =================
   getPropertyTenant = async (id: number) => {
     const property = await this.prisma.property.findFirst({
       where: { id, isDeleted: false },
@@ -430,7 +425,6 @@ export class PropertyService {
     return property;
   };
 
-  // ================= DELETE PROPERTY =================
   deleteProperty = async (id: number, userId: number) => {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, isDeleted: false },
@@ -504,7 +498,6 @@ export class PropertyService {
     return { message: "Property successfully deleted", data: deletedProperty };
   };
 
-  // ================= RESTORE PROPERTY =================
   restoreProperty = async (id: number, userId: number) => {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, isDeleted: false },
@@ -581,7 +574,6 @@ export class PropertyService {
     };
   };
 
-  // ================= GET PROPERTIES ADVANCED (PUBLIC) =================
   getPropertiesAdvanced = async (query: GetPropertyQuery) => {
     const {
       take = 8,
@@ -718,7 +710,6 @@ export class PropertyService {
     };
   };
 
-  // ================= GET PROPERTY DETAIL BY SLUG (PUBLIC) =================
   getPropertyBySlug = async (slug: string) => {
     try {
       const property = await this.prisma.property.findFirst({
@@ -759,7 +750,6 @@ export class PropertyService {
     }
   };
 
-  // ================= GET TENANT BY USER ID =================
   getTenantByUserId = async (userId: number) => {
     return this.prisma.tenant.findFirst({
       where: { userId, isDeleted: false },

@@ -8,7 +8,6 @@ export class CategoryController {
     this.categoryService = new CategoryService();
   }
 
-  // ================= CREATE CATEGORY =================
   createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user.id);
@@ -25,7 +24,6 @@ export class CategoryController {
     }
   };
 
-  // ================= GET CATEGORY LIST =================
   getCategoryList = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const take = parseInt(req.query.take as string) || 7;
@@ -58,7 +56,6 @@ export class CategoryController {
     }
   };
 
-  // ================= DELETE CATEGORY =================
   deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const categoryId = Number(req.params.id);
@@ -73,7 +70,6 @@ export class CategoryController {
     }
   };
 
-  // ================= UPDATE CATEGORY =================
   updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const categoryId = Number(req.params.id);
@@ -93,7 +89,6 @@ export class CategoryController {
     }
   };
 
-  // ================= GET ALL CATEGORY LIST =================
   getAllCategoryList = async (
     req: Request,
     res: Response,

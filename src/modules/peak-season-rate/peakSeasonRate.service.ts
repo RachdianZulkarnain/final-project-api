@@ -36,7 +36,6 @@ export class PeakSeasonService {
     this.prisma = new PrismaService();
   }
 
-  /** CREATE PEAK SEASON RATE */
   createPeakSeason = async (userId: number, body: CreatePeakSeasonBody) => {
     const { price, startDate, endDate, roomId } = body;
 
@@ -94,7 +93,6 @@ export class PeakSeasonService {
     return { message: "Peak Season Rate created successfully", data: newPeak };
   };
 
-  /** GET PEAK SEASON RATES */
   getPeakSeasons = async (query: GetPeakSeasonsQuery, userId: number) => {
     const {
       take = 10,
@@ -146,7 +144,6 @@ export class PeakSeasonService {
     return { data, meta: { page, take, total } };
   };
 
-  /** UPDATE PEAK SEASON RATE */
   updatePeakSeasonRate = async (
     userId: number,
     id: number,
@@ -201,7 +198,6 @@ export class PeakSeasonService {
     };
   };
 
-  /** DELETE PEAK SEASON RATE */
   deletePeakSeasonRate = async (userId: number, id: number) => {
     const peakSeason = await this.prisma.peakSeasonRate.findUnique({
       where: { id },

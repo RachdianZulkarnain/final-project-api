@@ -47,13 +47,11 @@ export class AccountService {
     if (!emailRegex.test(newEmail))
       throw new ApiError("Invalid email format", 400);
 
-    // Cari user
     const user = await this.prisma.user.findFirst({
       where: { id: userId, isDeleted: false },
     });
     if (!user) throw new ApiError("User not found", 404);
 
-    // Cek email baru sudah dipakai
     const existingUser = await this.prisma.user.findFirst({
       where: {
         email: { equals: newEmail, mode: "insensitive" },
@@ -62,7 +60,6 @@ export class AccountService {
     });
     if (existingUser) throw new ApiError("Email already in use", 400);
 
-    // Buat verification token & link
     const verificationToken = jwt.sign(
       { email: newEmail, createdAt: new Date().toISOString() },
       env().JWT_SECRET,
@@ -71,12 +68,11 @@ export class AccountService {
     const verificationLink = `${process.env.FRONTEND_URL}/dashboard/account/verify-email?token=${verificationToken}`;
     const fullName = `${user.firstName} ${user.lastName}`;
 
-    // Kirim email dengan context sesuai template
     try {
       await this.mailService.sendEmail(
-        newEmail, // kirim ke email baru, bukan email lama
+        newEmail,
         "Verify Your Email",
-        "verif-new-email", // nama template .hbs
+        "verif-new-email",
         {
           userName: fullName,
           verificationLink,
@@ -94,7 +90,6 @@ export class AccountService {
       throw new ApiError("Failed to send verification email", 500);
     }
 
-    // Simpan token & waktu pengiriman ke user
     await this.prisma.user.update({
       where: { id: userId },
       data: { verificationToken, verificationSentAt: new Date() },
@@ -103,7 +98,6 @@ export class AccountService {
     return { message: "Verification email sent successfully", expiresIn: "1h" };
   };
 
-  /** CHANGE PASSWORD */
   changePassword = async (userId: number, body: ChangePasswordBody) => {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.password)
@@ -124,7 +118,6 @@ export class AccountService {
     return { message: "Change password success" };
   };
 
-  /** GET PROFILE */
   getProfile = async (userId: number) => {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, isDeleted: false },
@@ -142,14 +135,12 @@ export class AccountService {
     return user;
   };
 
-  /** GET TENANT */
   getTenant = async (userId: number) => {
     const tenant = await this.prisma.tenant.findFirst({ where: { userId } });
     if (!tenant) throw new ApiError("Tenant not found", 404);
     return tenant;
   };
 
-  /** UPDATE PROFILE */
   updateProfile = async (
     userId: number,
     body: UpdateProfileBody,
@@ -175,7 +166,6 @@ export class AccountService {
     return updatedUser;
   };
 
-  /** UPDATE TENANT PROFILE */
   updateTenantProfile = async (
     userId: number,
     body: UpdateTenantBody,
@@ -201,7 +191,6 @@ export class AccountService {
     return updatedTenant;
   };
 
-  /** VERIFY CHANGE EMAIL */
   verifyChangeEmail = async ({ token, password }: VerifyInput) => {
     try {
       const decoded = jwt.verify(token, env().JWT_SECRET) as {

@@ -11,7 +11,6 @@ export class CategoryRouter {
   private readonly jwtMiddleware: JwtMiddleware;
 
   constructor() {
-    // manual instantiation
     const categoryService = new CategoryService();
     this.categoryController = new CategoryController();
     this.jwtMiddleware = new JwtMiddleware();
@@ -20,7 +19,6 @@ export class CategoryRouter {
   }
 
   private initializeRoutes = (): void => {
-    // CREATE CATEGORY
     this.router.post(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -28,7 +26,6 @@ export class CategoryRouter {
       this.categoryController.createCategory
     );
 
-    // GET CATEGORY LIST (tenant-specific)
     this.router.get(
       "/",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -36,10 +33,8 @@ export class CategoryRouter {
       this.categoryController.getCategoryList
     );
 
-    // GET ALL CATEGORY LIST (global, paginated)
     this.router.get("/list", this.categoryController.getAllCategoryList);
 
-    // DELETE CATEGORY
     this.router.delete(
       "/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
@@ -47,7 +42,6 @@ export class CategoryRouter {
       this.categoryController.deleteCategory
     );
 
-    // UPDATE CATEGORY
     this.router.put(
       "/:id",
       this.jwtMiddleware.verifyToken(env().JWT_SECRET!),

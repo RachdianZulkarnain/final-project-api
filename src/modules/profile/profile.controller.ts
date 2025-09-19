@@ -13,7 +13,6 @@ export class UserController {
     this.cloudinaryService = new CloudinaryService();
   }
 
-  /** GET USER */
   getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authUserId = Number(req.params.id);
@@ -24,7 +23,6 @@ export class UserController {
     }
   };
 
-  /** UPDATE USER */
   updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) throw new ApiError("Unauthorized", 401);
@@ -37,7 +35,6 @@ export class UserController {
     }
   };
 
-  /** UPLOAD PROFILE PICTURE */
   uploadProfilePic = async (
     req: Request,
     res: Response,

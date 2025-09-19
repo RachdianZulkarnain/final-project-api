@@ -8,7 +8,6 @@ export class CalendarController {
     this.calendarService = new CalendarService();
   }
 
-  // ================= GET MONTHLY CALENDAR =================
   getMonthlyCalendar = async (
     req: Request,
     res: Response,
@@ -48,7 +47,6 @@ export class CalendarController {
     }
   };
 
-  // ================= COMPARE ROOM PRICING =================
   compareRoomPricing = async (
     req: Request,
     res: Response,
@@ -103,7 +101,6 @@ export class CalendarController {
     }
   };
 
-  // ================= GET PROPERTY MONTHLY PRICE COMPARISON =================
   getPropertyMonthlyPriceComparison = async (
     req: Request,
     res: Response,

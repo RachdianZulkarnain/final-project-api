@@ -20,7 +20,7 @@ export class CategoryService {
   constructor() {
     this.prisma = new PrismaService();
   }
-  // ================= CREATE CATEGORY =================
+
   createCategory = async (
     body: CreateCategoryBody,
     userId: number
@@ -51,7 +51,6 @@ export class CategoryService {
       throw new ApiError("Tenant not found", 404);
     }
 
-    // check if deleted category exists → restore it
     const deletedCategory = await this.prisma.propertyCategory.findFirst({
       where: {
         name,
@@ -67,7 +66,6 @@ export class CategoryService {
       });
     }
 
-    // check if category already exists (not deleted)
     const existingCategory = await this.prisma.propertyCategory.findFirst({
       where: {
         name,
@@ -89,7 +87,6 @@ export class CategoryService {
     });
   };
 
-  // ================= GET CATEGORIES =================
   getCategories = async (query: GetCategoriesQuery, userId: number) => {
     const { take, page, sortBy, sortOrder, search } = query;
 
@@ -139,7 +136,6 @@ export class CategoryService {
     };
   };
 
-  // ================= DELETE CATEGORY =================
   deleteCategory = async (id: number) => {
     const category = await this.prisma.propertyCategory.findFirst({
       where: { id, isDeleted: false },
@@ -170,7 +166,6 @@ export class CategoryService {
     };
   };
 
-  // ================= UPDATE CATEGORY =================
   updateCategory = async (id: number, body: Pick<PropertyCategory, "name">) => {
     const { name } = body;
 
@@ -184,7 +179,6 @@ export class CategoryService {
     }
 
     if (name !== category.name) {
-      // cek category aktif dengan nama sama
       const existingActiveCategory =
         await this.prisma.propertyCategory.findFirst({
           where: {
@@ -199,7 +193,6 @@ export class CategoryService {
         throw new ApiError("Category name already exists for this tenant", 400);
       }
 
-      // hapus category deleted dengan nama sama
       const existingDeletedCategory =
         await this.prisma.propertyCategory.findFirst({
           where: {
@@ -227,7 +220,6 @@ export class CategoryService {
     };
   };
 
-  // ================= GET ALL CATEGORIES =================
   getAllCategories = async (query: {
     page: number;
     take: number;

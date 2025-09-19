@@ -9,7 +9,6 @@ export class AccountController {
     this.accountService = new AccountService();
   }
 
-  /** GET PROFILE */
   getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user?.id);
@@ -22,7 +21,6 @@ export class AccountController {
     }
   };
 
-  /** GET TENANT */
   getTenant = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user?.id);
@@ -35,7 +33,6 @@ export class AccountController {
     }
   };
 
-  /** UPDATE PROFILE */
   updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user?.id);
@@ -52,7 +49,6 @@ export class AccountController {
     }
   };
 
-  /** UPDATE TENANT PROFILE */
   updateTenantProfile = async (
     req: Request,
     res: Response,
@@ -73,7 +69,6 @@ export class AccountController {
     }
   };
 
-  /** CHANGE PASSWORD */
   changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user?.id);
@@ -90,7 +85,6 @@ export class AccountController {
     }
   };
 
-  /** CHANGE EMAIL */
   changeEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user?.id);
@@ -106,7 +100,6 @@ export class AccountController {
     }
   };
 
-  /** VERIFY CHANGE EMAIL */
   verifyChangeEmail = async (
     req: Request,
     res: Response,

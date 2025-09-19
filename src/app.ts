@@ -58,11 +58,9 @@ export class App {
     );
     this.app.use("/payments", paymentRouter.getRouter());
     this.app.use("/calendar", calendarRouter.getRouter());
-    this.app.use("/calendar", calendarRouter.getRouter());
   }
 
   private handleError() {
-    this.app.use(errorMiddleware);
     this.app.use(errorMiddleware);
   }
 

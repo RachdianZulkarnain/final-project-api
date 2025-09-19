@@ -14,7 +14,6 @@ export class CalendarService {
     this.prisma = new PrismaService();
   }
 
-  // ================= GET MONTHLY AVAILABILITY AND PRICING =================
   getMonthlyAvailabilityAndPricing = async (
     roomId: number,
     startDate: Date
@@ -92,7 +91,6 @@ export class CalendarService {
     }
   };
 
-  // ================= COMPARE ROOM PRICING =================
   compareRoomPricing = async (
     roomIds: number[],
     startDate: Date,
@@ -167,7 +165,6 @@ export class CalendarService {
     }
   };
 
-  // ================= GET PROPERTY MONTHLY PRICE COMPARISON =================
   getPropertyMonthlyPriceComparison = async (
     propertyId: number,
     date: Date

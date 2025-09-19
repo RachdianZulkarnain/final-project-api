@@ -8,7 +8,6 @@ export class RoomController {
     this.roomService = new RoomService();
   }
 
-  // ================= CREATE ROOM =================
   createRoom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (req.body.facilities && typeof req.body.facilities === "string") {
@@ -37,7 +36,6 @@ export class RoomController {
     }
   };
 
-  // ================= GET ROOMS (GENERAL) =================
   getRooms = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sortOrderRaw = (req.query.sortOrder as string) || "desc";
@@ -59,7 +57,6 @@ export class RoomController {
     }
   };
 
-  // ================= GET ROOMS (TENANT) =================
   getRoomsTenant = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sortOrderRaw = (req.query.sortOrder as string) || "desc";
@@ -85,7 +82,6 @@ export class RoomController {
     }
   };
 
-  // ================= GET ROOM BY ID =================
   getRoom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.roomService.getRoom(Number(req.params.id));
@@ -95,7 +91,6 @@ export class RoomController {
     }
   };
 
-  // ================= UPDATE ROOM =================
   updateRoom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (req.body.facilities && typeof req.body.facilities === "string") {
@@ -125,7 +120,6 @@ export class RoomController {
     }
   };
 
-  // ================= DELETE ROOM =================
   deleteRoom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.roomService.deleteRoom(

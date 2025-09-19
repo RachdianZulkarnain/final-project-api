@@ -8,7 +8,6 @@ export class PeakSeasonController {
     this.peakSeasonService = new PeakSeasonService();
   }
 
-  // ================= CREATE PEAK SEASON RATE =================
   createPeakSeasonRate = async (
     req: Request,
     res: Response,
@@ -32,7 +31,6 @@ export class PeakSeasonController {
     }
   };
 
-  // ================= GET PEAK SEASON RATES =================
   getPeakSeasonsRate = async (
     req: Request,
     res: Response,
@@ -69,7 +67,6 @@ export class PeakSeasonController {
     }
   };
 
-  // ================= UPDATE PEAK SEASON RATE =================
   updatePeakSeasonRate = async (
     req: Request,
     res: Response,
@@ -87,7 +84,6 @@ export class PeakSeasonController {
     }
   };
 
-  // ================= DELETE PEAK SEASON RATE =================
   deletePeakSeasonRate = async (
     req: Request,
     res: Response,

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   GetRoomNonAvailabilitiesQuery,
   RoomNonAvailabilityService,
-  UpdateRoomNonAvailabilityBody
+  UpdateRoomNonAvailabilityBody,
 } from "./roomNonAvailability.service";
 
 export class RoomNonAvailabilityController {
@@ -11,7 +11,6 @@ export class RoomNonAvailabilityController {
   constructor() {
     this.roomNonAvailabilityService = new RoomNonAvailabilityService();
   }
-  // ================= CREATE ROOM NON AVAILABILITY =================
   createRoomNonAvailability = async (
     req: Request,
     res: Response,
@@ -38,7 +37,6 @@ export class RoomNonAvailabilityController {
     }
   };
 
-  // ================= GET ROOM NON AVAILABILITIES =================
   getRoomNonAvailabilities = async (
     req: Request,
     res: Response,
@@ -73,7 +71,6 @@ export class RoomNonAvailabilityController {
     }
   };
 
-  // ================= UPDATE ROOM NON AVAILABILITY =================
   updateRoomNonAvailability = async (
     req: Request,
     res: Response,
@@ -101,7 +98,6 @@ export class RoomNonAvailabilityController {
     }
   };
 
-  // ================= DELETE ROOM NON AVAILABILITY =================
   deleteRoomNonAvailability = async (
     req: Request,
     res: Response,

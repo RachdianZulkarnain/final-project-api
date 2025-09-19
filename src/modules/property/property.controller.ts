@@ -11,7 +11,6 @@ export class PropertyController {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  // ================= CREATE PROPERTY =================
   createProperty = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user.id);
@@ -28,7 +27,6 @@ export class PropertyController {
     }
   };
 
-  // ================= UPDATE PROPERTY =================
   updateProperty = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(res.locals.user.id);
@@ -49,7 +47,6 @@ export class PropertyController {
     }
   };
 
-  // ================= GET PROPERTY DETAIL (PUBLIC) =================
   getPropertyController = async (
     req: Request,
     res: Response,
@@ -64,7 +61,6 @@ export class PropertyController {
     }
   };
 
-  // ================= GET PROPERTIES (ADVANCED, PUBLIC) =================
   getPropertiesController = async (
     req: Request,
     res: Response,
@@ -101,7 +97,6 @@ export class PropertyController {
     }
   };
 
-  // ================= GET PROPERTIES BY QUERY (PUBLIC, SIMPLE) =================
   getPropertiesByQuery = async (
     req: Request,
     res: Response,
@@ -133,7 +128,6 @@ export class PropertyController {
     }
   };
 
-  // ================= GET TENANT PROPERTIES =================
   getTenantProperties = async (
     req: Request,
     res: Response,
@@ -148,7 +142,6 @@ export class PropertyController {
 
       const userId = Number(res.locals.user.id);
 
-      // ✅ pakai service helper
       const tenant = await this.propertyService.getTenantByUserId(userId);
       if (!tenant) throw new Error("Tenant not found for this user");
 
@@ -168,7 +161,6 @@ export class PropertyController {
     }
   };
 
-  // ================= GET PROPERTY TENANT BY ID =================
   getPropertyTenant = async (
     req: Request,
     res: Response,
@@ -183,7 +175,6 @@ export class PropertyController {
     }
   };
 
-  // ================= DELETE PROPERTY =================
   deleteProperty = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const propertyId = Number(req.params.id);

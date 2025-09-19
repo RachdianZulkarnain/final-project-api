@@ -53,7 +53,7 @@ export class RoomService {
   createRoom = async (
     body: CreateRoomBody,
     file: Express.Multer.File,
-    userId: number // 
+    userId: number //
   ) => {
     const { type, name, stock, price, guest, propertyId, facilities } = body;
 
@@ -126,7 +126,6 @@ export class RoomService {
     });
   };
 
-  /** ================= UPDATE ROOM ================= */
   updateRoom = async (
     id: number,
     body: Partial<UpdateRoomBody>,
@@ -222,7 +221,6 @@ export class RoomService {
     });
   };
 
-  /** ================= GET ROOMS (GENERAL) ================= */
   getRooms = async (query: GetRoomsQuery) => {
     const { take, page, sortBy, sortOrder, search } = query;
 
@@ -260,7 +258,6 @@ export class RoomService {
     return { data: rooms, meta: { page, take, total: count } };
   };
 
-  /** ================= GET ROOMS (TENANT) ================= */
   getRoomsTenant = async (query: GetRoomsQuery, userId: number) => {
     const { take, page, sortBy, sortOrder, search } = query;
 
@@ -312,7 +309,6 @@ export class RoomService {
     return { data: rooms, meta: { page, take, total: count } };
   };
 
-  /** ================= GET ROOM BY ID ================= */
   getRoom = async (id: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, isDeleted: false },
@@ -329,7 +325,6 @@ export class RoomService {
     return room;
   };
 
-  /** ================= DELETE ROOM ================= */
   deleteRoom = async (id: number, userId: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, NOT: { isDeleted: true } },
@@ -373,7 +368,6 @@ export class RoomService {
     });
   };
 
-  /** ================= RESTORE ROOM ================= */
   restoreRoom = async (id: number, userId: number) => {
     const room = await this.prisma.room.findFirst({
       where: { id, isDeleted: true },
