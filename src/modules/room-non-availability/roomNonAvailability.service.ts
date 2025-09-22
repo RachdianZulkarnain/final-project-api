@@ -63,33 +63,23 @@ export class RoomNonAvailabilityService {
       );
     }
 
-    const existingNonAvailabilities =
-      await this.prisma.roomNonAvailability.findMany({ where: { roomId } });
-
-    const inputInterval = {
-      start: new Date(startDate),
-      end: new Date(endDate),
-    };
-
-    for (const item of existingNonAvailabilities) {
+    const existing = await this.prisma.roomNonAvailability.findMany({
+      where: { roomId },
+    });
+    const inputInterval = { start: startDate, end: endDate };
+    for (const item of existing) {
       const overlap =
         inputInterval.start < item.endDate &&
         inputInterval.end > item.startDate;
-      if (overlap) {
+      if (overlap)
         throw new ApiError(
-          "Room Non Availability for that interval already exists",
+          "Room Non Availability interval already exists",
           400
         );
-      }
     }
 
     const newNonAvailability = await this.prisma.roomNonAvailability.create({
-      data: {
-        reason,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        roomId,
-      },
+      data: { reason, startDate, endDate, roomId },
     });
 
     return {
