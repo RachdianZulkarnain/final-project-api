@@ -18,8 +18,6 @@ export class RoomNonAvailabilityController {
   ) => {
     try {
       const userId = Number(res.locals.user.id);
-      if (!userId) throw new Error("Unauthorized");
-
       const payload = {
         reason: req.body.reason,
         startDate: new Date(req.body.startDate),
@@ -32,9 +30,10 @@ export class RoomNonAvailabilityController {
           userId,
           payload
         );
+
       res.status(201).json(result);
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   };
 
