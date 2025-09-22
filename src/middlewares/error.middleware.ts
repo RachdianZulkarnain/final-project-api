@@ -3,13 +3,11 @@ import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../utils/api-error";
 
 export function errorMiddleware(
-  err: any,
+  err: ApiError | PrismaClientKnownRequestError,
   _req: Request,
   res: Response,
   _next: NextFunction
 ) {
-  console.error("🔥 Global Error Middleware:", err);
-
   if (err instanceof PrismaClientKnownRequestError) {
     switch (err.code) {
       case "P2002":
@@ -38,16 +36,7 @@ export function errorMiddleware(
     }
   }
 
-  if (err instanceof ApiError) {
-    return res.status(err.status).json({
-      message: err.message,
-      errors: (err as any).errors || null,
-    });
-  }
-
-  // fallback untuk error biasa
-  return res.status(500).json({
-    message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "production" ? undefined : err.stack,
-  });
+  const status = (err as ApiError).status || 500;
+  const message = (err as ApiError).message || "Something went wrong";
+  return res.status(status).json({ message });
 }
