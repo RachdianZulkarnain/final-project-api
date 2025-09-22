@@ -19,28 +19,28 @@ export class RoomNonAvailabilityRouter {
   private initializeRoutes = (): void => {
     this.router.get(
       "/",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
       this.roomNonAvailabilityController.getRoomNonAvailabilities
     );
 
     this.router.post(
       "/",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
       this.roomNonAvailabilityController.createRoomNonAvailability
     );
 
     this.router.patch(
       "/room/:id",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
       this.roomNonAvailabilityController.updateRoomNonAvailability
     );
 
     this.router.delete(
       "/room/:id",
-      this.jwtMiddleware.verifyToken(env().JWT_SECRET!),
+      this.jwtMiddleware.verifyToken(env().JWT_SECRET),
       isTenant,
       this.roomNonAvailabilityController.deleteRoomNonAvailability
     );
