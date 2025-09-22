@@ -25,6 +25,8 @@ export class RoomNonAvailabilityController {
         roomId: Number(req.body.roomId),
       };
 
+      console.log("📩 CreateRoomNonAvailability payload:", payload);
+
       const result =
         await this.roomNonAvailabilityService.createRoomNonAvailability(
           userId,
@@ -33,6 +35,7 @@ export class RoomNonAvailabilityController {
 
       res.status(201).json(result);
     } catch (error) {
+      console.error("❌ Controller Error:", error);
       next(error);
     }
   };
